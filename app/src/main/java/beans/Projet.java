@@ -30,6 +30,7 @@ public class Projet {
         this.nom = nom;
         this.dateDebut = dateDebut;
         this.dateFin = dateFin;
+
     }
 
 
