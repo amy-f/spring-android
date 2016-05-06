@@ -10,8 +10,7 @@ public class Projet {
 
     private int id;
     private String nom;
-    private Date dateDebut;
-    private Date dateFin;
+    private int etat;
 
     /**
      * Constructeur sans paramètres
@@ -22,16 +21,16 @@ public class Projet {
      * Constructeur avec paramètres
      * @param id l'ID du projet dans la base de données
      * @param nom le nom du projet
-     * @param dateDebut la date de début du projet
-     * @param dateFin la date de fin du projet
      */
     public Projet(int id, String nom, Date dateDebut, Date dateFin) {
         this.id = id;
         this.nom = nom;
-        this.dateDebut = dateDebut;
-        this.dateFin = dateFin;
     }
 
+    public Projet(String nom, int etat) {
+        this.nom = nom;
+        this.etat = etat;
+    }
 
     public int getId() {
         return id;
@@ -49,19 +48,4 @@ public class Projet {
         this.nom = nom;
     }
 
-    public Date getDateDebut() {
-        return dateDebut;
-    }
-
-    public void setDateDebut(Date dateDebut) {
-        this.dateDebut = dateDebut;
-    }
-
-    public Date getDateFin() {
-        return dateFin;
-    }
-
-    public void setDateFin(Date dateFin) {
-        this.dateFin = dateFin;
-    }
 }
