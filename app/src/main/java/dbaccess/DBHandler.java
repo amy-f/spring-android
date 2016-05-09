@@ -3,8 +3,6 @@ package dbaccess;
 import android.content.Context;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import beans.Projet;
-
 /**
  * Created by Amélie on 2016-05-06.
  */
