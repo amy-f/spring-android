@@ -25,6 +25,7 @@ public class Projet {
     public Projet(int id, String nom, Date dateDebut, Date dateFin) {
         this.id = id;
         this.nom = nom;
+
     }
 
     public Projet(int id, String nom, int etat) {
