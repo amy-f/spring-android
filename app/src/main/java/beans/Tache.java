@@ -20,11 +20,12 @@ public class Tache {
     private Date dateFinReelle;
     private String commentaire;
     private int etat;
+    private float progression;
     private int projetID;
 
     public Tache() {}
 
-    public Tache(int id, String nom, String description, String adresse, float longitude, float latitude, Date dateDebutPrevue, Date dateDebutReelle, Date dateFinPrevue, Date dateFinReelle, String commentaire, int etat, int projetID) {
+    public Tache(int id, String nom, String description, String adresse, float longitude, float latitude, Date dateDebutPrevue, Date dateDebutReelle, Date dateFinPrevue, Date dateFinReelle, String commentaire, int etat, float progression, int projetID) {
         this.id = id;
         this.nom = nom;
         this.description = description;
@@ -37,6 +38,7 @@ public class Tache {
         this.dateFinReelle = dateFinReelle;
         this.commentaire = commentaire;
         this.etat = etat;
+        this.progression = progression;
         this.projetID = projetID;
     }
 
@@ -134,6 +136,14 @@ public class Tache {
 
     public void setEtat(int etat) {
         this.etat = etat;
+    }
+
+    public float getProgression() {
+        return progression;
+    }
+
+    public void setProgression(float progression) {
+        this.progression = progression;
     }
 
     public int getProjetID() {
