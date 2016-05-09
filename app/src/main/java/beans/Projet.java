@@ -27,7 +27,8 @@ public class Projet {
         this.nom = nom;
     }
 
-    public Projet(String nom, int etat) {
+    public Projet(int id, String nom, int etat) {
+        this.id = id;
         this.nom = nom;
         this.etat = etat;
     }
@@ -48,4 +49,11 @@ public class Projet {
         this.nom = nom;
     }
 
+    public int getEtat() {
+        return etat;
+    }
+
+    public void setEtat(int etat) {
+        this.etat = etat;
+    }
 }

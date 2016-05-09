@@ -1,5 +1,6 @@
 package dbaccess;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -16,10 +17,14 @@ public class ProjetQueryHandler{
     public static final String PROJET_ETAT = "projet_etat";
     public static final String PROJET_TABLE_NAME = "projet";
     private static final String PROJET_INSERT = "INSERT INTO " + PROJET_TABLE_NAME +
-            " VALUES (null, ?, ?)";
+            " VALUES (?, ?, ?)";
 
-    public void insertProjet(Projet p) {
-
+    public void insertProjet(SQLiteDatabase db, Projet p) {
+        SQLiteStatement stmt = db.compileStatement(PROJET_INSERT);
+        stmt.bindLong(1, p.getId());
+        stmt.bindString(2, p.getNom());
+        stmt.bindLong(3, p.getEtat());
+        stmt.execute();
     }
 
     public void updateProjet(Projet p) {

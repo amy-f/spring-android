@@ -23,6 +23,10 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import beans.Projet;
+import handlers.ProjetHandler;
+import handlers.TacheHandler;
+
 
 public class  MainActivity extends AppCompatActivity {
 
@@ -35,6 +39,18 @@ public class  MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Va chercher les handlers
+        ProjetHandler projetHandler = new ProjetHandler(getApplicationContext());
+        TacheHandler tacheHandler = new TacheHandler(getApplicationContext());
+
+        //TODO: Enlever après les tests. Ne faire qu'une seule fois!!
+        Projet droidProjet = new Projet(1, "TP Android", 1);
+        Projet webProjet = new Projet(2, "TP Web PHP", 1);
+        projetHandler.insertProjet(droidProjet);
+        projetHandler.insertProjet(webProjet);
+
+        //Va chercher les informations dans la base de données
 
 
         //ajoute des tâches fictive dans l'array list late
