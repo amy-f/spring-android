@@ -34,11 +34,9 @@ public class DBHandler extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(android.database.sqlite.SQLiteDatabase db) {
-
         //Créé les tables de la base de données
         db.execSQL(PROJET_TABLE_CREATE);
         db.execSQL(TACHE_TABLE_CREATE);
-
     }
 
     @Override
