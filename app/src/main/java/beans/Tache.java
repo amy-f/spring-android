@@ -12,8 +12,8 @@ public class Tache {
     private String nom;
     private String description;
     private String adresse;
-    private float longitude;
-    private float latitude;
+    private double longitude;
+    private double latitude;
     private Date dateDebutPrevue;
     private Date dateDebutReelle;
     private Date dateFinPrevue;
@@ -25,7 +25,7 @@ public class Tache {
 
     public Tache() {}
 
-    public Tache(int id, String nom, String description, String adresse, float longitude, float latitude, Date dateDebutPrevue, Date dateDebutReelle, Date dateFinPrevue, Date dateFinReelle, String commentaire, int etat, float progression, int projetID) {
+    public Tache(int id, String nom, String description, String adresse, double longitude, double latitude, Date dateDebutPrevue, Date dateDebutReelle, Date dateFinPrevue, Date dateFinReelle, String commentaire, int etat, float progression, int projetID) {
         this.id = id;
         this.nom = nom;
         this.description = description;
@@ -114,19 +114,19 @@ public class Tache {
         this.commentaire = commentaire;
     }
 
-    public float getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(float longitude) {
+    public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
 
-    public float getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(float latitude) {
+    public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
 
