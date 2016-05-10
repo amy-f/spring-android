@@ -12,19 +12,20 @@ public class Tache {
     private String nom;
     private String description;
     private String adresse;
-    private float longitude;
-    private float latitude;
+    private double longitude;
+    private double latitude;
     private Date dateDebutPrevue;
     private Date dateDebutReelle;
     private Date dateFinPrevue;
     private Date dateFinReelle;
     private String commentaire;
     private int etat;
+    private float progression;
     private int projetID;
 
     public Tache() {}
 
-    public Tache(int id, String nom, String description, String adresse, float longitude, float latitude, Date dateDebutPrevue, Date dateDebutReelle, Date dateFinPrevue, Date dateFinReelle, String commentaire, int etat, int projetID) {
+    public Tache(int id, String nom, String description, String adresse, double longitude, double latitude, Date dateDebutPrevue, Date dateDebutReelle, Date dateFinPrevue, Date dateFinReelle, String commentaire, int etat, float progression, int projetID) {
         this.id = id;
         this.nom = nom;
         this.description = description;
@@ -37,6 +38,7 @@ public class Tache {
         this.dateFinReelle = dateFinReelle;
         this.commentaire = commentaire;
         this.etat = etat;
+        this.progression = progression;
         this.projetID = projetID;
     }
 
@@ -112,19 +114,19 @@ public class Tache {
         this.commentaire = commentaire;
     }
 
-    public float getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(float longitude) {
+    public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
 
-    public float getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(float latitude) {
+    public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
 
@@ -134,6 +136,14 @@ public class Tache {
 
     public void setEtat(int etat) {
         this.etat = etat;
+    }
+
+    public float getProgression() {
+        return progression;
+    }
+
+    public void setProgression(float progression) {
+        this.progression = progression;
     }
 
     public int getProjetID() {

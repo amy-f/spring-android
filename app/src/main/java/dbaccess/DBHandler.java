@@ -16,6 +16,7 @@ public class DBHandler extends SQLiteOpenHelper {
     public static final String TACHE_TABLE_CREATE = "CREATE TABLE " + TacheQueryHandler.TACHE_TABLE_NAME +
             " (" + TacheQueryHandler.TACHE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + TacheQueryHandler.TACHE_NOM + " TEXT, "
+            + TacheQueryHandler.TACHE_DESCRIPTION + " TEXT, "
             + TacheQueryHandler.TACHE_ADRESSE + " INTEGER, " +
             TacheQueryHandler.TACHE_LONGITUDE + " REAL, " +
             TacheQueryHandler.TACHE_LATITUDE + " REAL, " +

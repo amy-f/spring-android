@@ -22,8 +22,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import beans.Projet;
+import beans.Tache;
 import handlers.ProjetHandler;
 import handlers.TacheHandler;
 
@@ -44,11 +46,29 @@ public class  MainActivity extends AppCompatActivity {
         ProjetHandler projetHandler = new ProjetHandler(getApplicationContext());
         TacheHandler tacheHandler = new TacheHandler(getApplicationContext());
 
-        //TODO: Enlever après les tests. Ne faire qu'une seule fois!!
+        //TODO: Enlever insertion après les tests. Ne faire qu'une seule fois!!
         Projet droidProjet = new Projet(1, "TP Android", 1);
         Projet webProjet = new Projet(2, "TP Web PHP", 1);
+        ArrayList<Tache> droidTaches = new ArrayList<>();
+        ArrayList<Tache> webTaches = new ArrayList<>();
+        droidTaches.add(new Tache(1, "Interface Android", "Préparation de l'interface Android", "475 rue du Cégep",
+                45.411185, -71.886196, new Date(), null, new Date(), null, null, 1, 0, droidProjet.getId()));
+        droidTaches.add(new Tache(2, "Base de données", "Préparation et tests de la base de données SQLite", "475 rue du Cégep",
+                45.411185, -71.886196, new Date(), null, new Date(), null, null, 1, 0, droidProjet.getId()));
+        droidTaches.add(new Tache(3, "Synchronisation", "Synchronisation avec la base de données Web", "475 rue du Cégep",
+                45.411185, -71.886196, new Date(), null, new Date(), null, null, 1, 0, droidProjet.getId()));
+        webTaches.add(new Tache(4, "Interface Web", "Préparation de l'interface Web", "475 rue du Cégep",
+                45.411185, -71.886196, new Date(), null, new Date(), null, null, 1, 0, droidProjet.getId()));
+        webTaches.add(new Tache(5, "Base de données", "Préparation de la base de données mySQL", "475 rue du Cégep",
+                45.411185, -71.886196, new Date(), null, new Date(), null, null, 1, 0, droidProjet.getId()));
         projetHandler.insertProjet(droidProjet);
         projetHandler.insertProjet(webProjet);
+        for (int i = 0; i < droidTaches.size(); i++) {
+            tacheHandler.insertTache(droidTaches.get(i));
+        }
+        for (int i = 0; i < webTaches.size(); i++) {
+            tacheHandler.insertTache(webTaches.get(i));
+        }
 
         //Va chercher les informations dans la base de données
 
