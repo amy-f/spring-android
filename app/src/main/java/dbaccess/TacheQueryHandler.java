@@ -1,10 +1,12 @@
 package dbaccess;
 
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import java.text.DateFormat;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 
 import beans.Tache;
 
@@ -66,5 +68,25 @@ public class TacheQueryHandler {
         stmt.bindLong(14, t.getProjetID());
         stmt.execute();
     }
+
+   /* public ArrayList<Tache> selectTacheFromProjetID(SQLiteDatabase mDB, int projetID) {
+        ArrayList<Tache> taches = new ArrayList<>();
+
+        Cursor cursor = mDB.rawQuery(PROJET_SELECT_ALL, null);
+        if (cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(cursor.getColumnIndex(TACHE_ID));
+                String name = cursor.getString(cursor.getColumnIndex(TACHE_NOM));
+                String desc = cursor.getString(cursor.getColumnIndex(TACHE_DESCRIPTION));
+                int state = cursor.getInt(cursor.getColumnIndex(PROJET_ETAT));
+                Tache t = new Tache(id, name, state);
+                taches.add(t);
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+
+        return taches;
+    }*/
 
 }

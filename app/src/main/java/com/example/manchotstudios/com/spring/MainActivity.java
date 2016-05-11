@@ -1,8 +1,10 @@
 package com.example.manchotstudios.com.spring;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.database.DataSetObserver;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -36,6 +38,7 @@ public class  MainActivity extends AppCompatActivity {
     private ArrayList<Task> today;
     private ArrayList<Task> rdv;
 
+    private ArrayList<Projet> projets = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +49,8 @@ public class  MainActivity extends AppCompatActivity {
         ProjetHandler projetHandler = new ProjetHandler(getApplicationContext());
         TacheHandler tacheHandler = new TacheHandler(getApplicationContext());
 
-        //TODO: Enlever insertion après les tests. Ne faire qu'une seule fois!!
-        Projet droidProjet = new Projet(1, "TP Android", 1);
+        //Insère les données dans le projet (ONE TIME ONLY!)
+        /*Projet droidProjet = new Projet(1, "TP Android", 1);
         Projet webProjet = new Projet(2, "TP Web PHP", 1);
         ArrayList<Tache> droidTaches = new ArrayList<>();
         ArrayList<Tache> webTaches = new ArrayList<>();
@@ -68,10 +71,10 @@ public class  MainActivity extends AppCompatActivity {
         }
         for (int i = 0; i < webTaches.size(); i++) {
             tacheHandler.insertTache(webTaches.get(i));
-        }
+        }*/
 
-        //Va chercher les informations dans la base de données
-
+        //Va chercher les informations dans la base de données et les insère dans le spinner
+        ArrayList<Projet> projetsData = projetHandler.selectAllProjet();
 
         //ajoute des tâches fictive dans l'array list late
         //// TODO: 2016-04-26 communiquer avec la bd
@@ -98,14 +101,69 @@ public class  MainActivity extends AppCompatActivity {
         ListView lstToday = (ListView) findViewById(R.id.lstToday);
         ListView lstRDV = (ListView) findViewById(R.id.lstMeet);
 
-        //S'occupe de chaque row du spinner
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item);
-
         //met des valeurs fictive dans le spinner
-        //// TODO: 2016-04-26 le faire communiquer avec la bd (valeurs fictive)
-        adapter.add("Coop");
-        adapter.add("TP Final");
-        adapter.add("Alexander");
+        for (Projet projet : projetsData) {
+            projets.add(projet);
+        }
+
+        //Classe du SpinAdapter
+        //Adapter pour le projet
+        class SpinAdapter extends ArrayAdapter<Projet> {
+
+            // Your sent context
+            private Context context;
+            // Your custom values for the spinner (User)
+            private ArrayList<Projet> values;
+
+            public SpinAdapter(Context context, int textViewResourceId, ArrayList<Projet> values) {
+                super(context, textViewResourceId, values);
+                this.context = context;
+                this.values = values;
+            }
+
+            public int getCount(){
+                return values.size();
+            }
+
+            public Projet getItem(int position){
+                return values.get(position);
+            }
+
+            public long getItemId(int position){
+                return position;
+            }
+
+
+            // And the "magic" goes here
+            // This is for the "passive" state of the spinner
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                // I created a dynamic TextView here, but you can reference your own  custom layout for each spinner item
+                TextView label = new TextView(context);
+                label.setTextColor(Color.WHITE);
+                // Then you can get the current item using the values array (Users array) and the current position
+                // You can NOW reference each method you has created in your bean object (User class)
+                label.setText(values.get(position).getNom());
+
+                // And finally return your dynamic (or custom) view for each spinner item
+                return label;
+            }
+
+            // And here is when the "chooser" is popped up
+            // Normally is the same view, but you can customize it if you want
+            @Override
+            public View getDropDownView(int position, View convertView,
+                                        ViewGroup parent) {
+                TextView label = new TextView(context);
+                label.setTextColor(Color.BLACK);
+                label.setText(values.get(position).getNom());
+
+                return label;
+            }
+        }
+
+        //S'occupe de chaque row du spinner
+        SpinAdapter adapter = new SpinAdapter(getApplicationContext(), android.R.layout.simple_spinner_item, projets);
 
         //met un forme au spinner
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
