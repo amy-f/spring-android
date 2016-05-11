@@ -34,9 +34,9 @@ import handlers.TacheHandler;
 
 public class  MainActivity extends AppCompatActivity {
 
-    private ArrayList<Task> late;
-    private ArrayList<Task> today;
-    private ArrayList<Task> rdv;
+    private ArrayList<Tache> late;
+    private ArrayList<Tache> today;
+    //private ArrayList<Task> rdv;
 
     private ArrayList<Projet> projets = new ArrayList<>();
 
@@ -48,9 +48,11 @@ public class  MainActivity extends AppCompatActivity {
         //Va chercher les handlers
         ProjetHandler projetHandler = new ProjetHandler(getApplicationContext());
         TacheHandler tacheHandler = new TacheHandler(getApplicationContext());
+        late = new ArrayList<>();
+        today = new ArrayList<>();
 
         //Insère les données dans le projet (ONE TIME ONLY!)
-        /*Projet droidProjet = new Projet(1, "TP Android", 1);
+       /* Projet droidProjet = new Projet(1, "TP Android", 1);
         Projet webProjet = new Projet(2, "TP Web PHP", 1);
         ArrayList<Tache> droidTaches = new ArrayList<>();
         ArrayList<Tache> webTaches = new ArrayList<>();
@@ -61,9 +63,9 @@ public class  MainActivity extends AppCompatActivity {
         droidTaches.add(new Tache(3, "Synchronisation", "Synchronisation avec la base de données Web", "475 rue du Cégep",
                 45.411185, -71.886196, new Date(), null, new Date(), null, null, 1, 0, droidProjet.getId()));
         webTaches.add(new Tache(4, "Interface Web", "Préparation de l'interface Web", "475 rue du Cégep",
-                45.411185, -71.886196, new Date(), null, new Date(), null, null, 1, 0, droidProjet.getId()));
+                45.411185, -71.886196, new Date(), null, new Date(), null, null, 1, 0, webProjet.getId()));
         webTaches.add(new Tache(5, "Base de données", "Préparation de la base de données mySQL", "475 rue du Cégep",
-                45.411185, -71.886196, new Date(), null, new Date(), null, null, 1, 0, droidProjet.getId()));
+                45.411185, -71.886196, new Date(), null, new Date(), null, null, 1, 0, webProjet.getId()));
         projetHandler.insertProjet(droidProjet);
         projetHandler.insertProjet(webProjet);
         for (int i = 0; i < droidTaches.size(); i++) {
@@ -76,98 +78,52 @@ public class  MainActivity extends AppCompatActivity {
         //Va chercher les informations dans la base de données et les insère dans le spinner
         ArrayList<Projet> projetsData = projetHandler.selectAllProjet();
 
-        //ajoute des tâches fictive dans l'array list late
-        //// TODO: 2016-04-26 communiquer avec la bd
-        late = new ArrayList<Task>();
-        late.add(new Task("Tondre la pelouse", false, false));
-        late.add(new Task("Torturer le chat", false, false));
-        late.add(new Task("Peindre le garage", false, false));
-
-        //// TODO: 2016-04-26 communiquer avec la bd
-        today = new ArrayList<Task>();
-        today.add(new Task("Acheter du bois", false, false));
-        today.add(new Task("Faire le ménage", false, false));
-        today.add(new Task("Laver le chien", false, false));
-
-        //// TODO: 2016-04-26 communiquer avec la bd
-        rdv = new ArrayList<Task>();
-        rdv.add(new Task("Acheter du bois", false, false));
-        rdv.add(new Task("Faire le ménage", false, false));
-        rdv.add(new Task("Laver le chien", false, false));
-
-        //Retrouve les élémnents dont on a besoin
-        Spinner spin = (Spinner) findViewById(R.id.spin);
-        ListView lstLate = (ListView) findViewById(R.id.lstLate);
-        ListView lstToday = (ListView) findViewById(R.id.lstToday);
-        ListView lstRDV = (ListView) findViewById(R.id.lstMeet);
-
-        //met des valeurs fictive dans le spinner
+        //Met les projets associés dans le spinner
         for (Projet projet : projetsData) {
             projets.add(projet);
         }
 
-        //Classe du SpinAdapter
-        //Adapter pour le projet
-        class SpinAdapter extends ArrayAdapter<Projet> {
-
-            // Your sent context
-            private Context context;
-            // Your custom values for the spinner (User)
-            private ArrayList<Projet> values;
-
-            public SpinAdapter(Context context, int textViewResourceId, ArrayList<Projet> values) {
-                super(context, textViewResourceId, values);
-                this.context = context;
-                this.values = values;
-            }
-
-            public int getCount(){
-                return values.size();
-            }
-
-            public Projet getItem(int position){
-                return values.get(position);
-            }
-
-            public long getItemId(int position){
-                return position;
-            }
-
-
-            // And the "magic" goes here
-            // This is for the "passive" state of the spinner
-            @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-                // I created a dynamic TextView here, but you can reference your own  custom layout for each spinner item
-                TextView label = new TextView(context);
-                label.setTextColor(Color.WHITE);
-                // Then you can get the current item using the values array (Users array) and the current position
-                // You can NOW reference each method you has created in your bean object (User class)
-                label.setText(values.get(position).getNom());
-
-                // And finally return your dynamic (or custom) view for each spinner item
-                return label;
-            }
-
-            // And here is when the "chooser" is popped up
-            // Normally is the same view, but you can customize it if you want
-            @Override
-            public View getDropDownView(int position, View convertView,
-                                        ViewGroup parent) {
-                TextView label = new TextView(context);
-                label.setTextColor(Color.BLACK);
-                label.setText(values.get(position).getNom());
-
-                return label;
-            }
+        //Sélectionne les taches associées à chaque projet et les met dans la liste de taches du projet
+        for (Projet p : projets) {
+            ArrayList<Tache> taches = tacheHandler.selectTacheFromProjetID(p.getId());
+            p.setTaches(taches);
         }
+
+        //Retrouve les élémnents dont on a besoin
+        Spinner spinner = (Spinner) findViewById(R.id.spin);
+        ListView lstLate = (ListView) findViewById(R.id.lstLate);
+        ListView lstToday = (ListView) findViewById(R.id.lstToday);
+        //ListView lstRDV = (ListView) findViewById(R.id.lstMeet);
+
+        //Gère le listener du spinner
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Spinner spinner = (Spinner) findViewById(R.id.spin);
+                ListView lstLate = (ListView) findViewById(R.id.lstLate);
+                ListView lstToday = (ListView) findViewById(R.id.lstToday);
+
+                updateListesTaches((Projet) spinner.getSelectedItem());
+                //ajouter les valeurs dans l'adapter
+                TaskAdapter adaptLate = new TaskAdapter(late);
+                lstLate.setAdapter(adaptLate);
+                TaskAdapter adaptToday = new TaskAdapter(today);
+                lstToday.setAdapter(adaptToday);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         //S'occupe de chaque row du spinner
         SpinAdapter adapter = new SpinAdapter(getApplicationContext(), android.R.layout.simple_spinner_item, projets);
 
         //met un forme au spinner
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spin.setAdapter(adapter);
+        spinner.setAdapter(adapter);
+        updateListesTaches((Projet) spinner.getSelectedItem());
 
         //ajouter les valeurs dans l'adapter
         TaskAdapter adaptLate = new TaskAdapter(late);
@@ -176,8 +132,8 @@ public class  MainActivity extends AppCompatActivity {
         TaskAdapter adaptToday = new TaskAdapter(today);
         lstToday.setAdapter(adaptToday);
 
-        TaskAdapter adaptRDV = new TaskAdapter(rdv);
-        lstRDV.setAdapter(adaptRDV);
+        //TaskAdapter adaptRDV = new TaskAdapter(rdv);
+        //lstRDV.setAdapter(adaptRDV);
 
         lstLate.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -185,7 +141,7 @@ public class  MainActivity extends AppCompatActivity {
 
                 AlertDialog.Builder info = new AlertDialog.Builder(MainActivity.this)
                         .setTitle("Description de la tâche")
-                        .setMessage(late.get(position).getTitle())
+                        .setMessage(late.get(position).getDescription())
                         .setNeutralButton("OK", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -199,11 +155,11 @@ public class  MainActivity extends AppCompatActivity {
 
 
 
-    class TaskAdapter extends ArrayAdapter<Task>{
+    class TaskAdapter extends ArrayAdapter<Tache>{
         /**
          * Constructeur de TaskAdaptertest
          */
-        TaskAdapter(ArrayList<Task> task){super(MainActivity.this, R.layout.row,task);}
+        TaskAdapter(ArrayList<Tache> task){super(MainActivity.this, R.layout.row,task);}
 
         /**
          * obtient la vue en cours
@@ -276,10 +232,81 @@ public class  MainActivity extends AppCompatActivity {
          * Met les valeur de l'objet task dans la rangée
          * @param t la tâche à insérer
          */
-        public void setTask(Task t){
-            getTitle().setText(t.getTitle());
-            getStarted().setChecked(t.getStarted());
-            getDone().setChecked(t.getDone());
+        public void setTask(Tache t){
+            getTitle().setText(t.getNom());
+            getStarted().setChecked(t.getDateDebutReelle() != null);
+            getDone().setChecked(t.getDateFinReelle() != null);
+        }
+    }
+
+    //Classe du SpinAdapter
+    //Adapter pour le projet
+    class SpinAdapter extends ArrayAdapter<Projet> {
+
+        // Your sent context
+        private Context context;
+        // Your custom values for the spinner (User)
+        private ArrayList<Projet> values;
+
+        public SpinAdapter(Context context, int textViewResourceId, ArrayList<Projet> values) {
+            super(context, textViewResourceId, values);
+            this.context = context;
+            this.values = values;
+        }
+
+        public int getCount(){
+            return values.size();
+        }
+
+        public Projet getItem(int position){
+            return values.get(position);
+        }
+
+        public long getItemId(int position){
+            return position;
+        }
+
+
+        // And the "magic" goes here
+        // This is for the "passive" state of the spinner
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            // I created a dynamic TextView here, but you can reference your own  custom layout for each spinner item
+            TextView label = new TextView(context);
+            label.setTextColor(Color.WHITE);
+            // Then you can get the current item using the values array (Users array) and the current position
+            // You can NOW reference each method you has created in your bean object (User class)
+            label.setText(values.get(position).getNom());
+
+            // And finally return your dynamic (or custom) view for each spinner item
+            return label;
+        }
+
+        // And here is when the "chooser" is popped up
+        // Normally is the same view, but you can customize it if you want
+        @Override
+        public View getDropDownView(int position, View convertView,
+                                    ViewGroup parent) {
+            TextView label = new TextView(context);
+            label.setTextColor(Color.BLACK);
+            label.setText(values.get(position).getNom());
+
+            return label;
+        }
+    }
+
+    public void updateListesTaches(Projet p) {
+        ArrayList<Tache> taches = p.getTaches();
+        Date todayDate = new Date();
+        late = new ArrayList<>();
+        today = new ArrayList<>();
+        for (Tache t : taches) {
+            if (todayDate.after(t.getDateDebutPrevue())) {
+                late.add(t);
+            }
+            else if (todayDate == t.getDateDebutPrevue()) {
+                today.add(t);
+            }
         }
     }
 

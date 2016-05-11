@@ -5,8 +5,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import java.text.DateFormat;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import beans.Tache;
 
@@ -32,6 +34,9 @@ public class TacheQueryHandler {
 
     private static final String TACHE_INSERT = "INSERT INTO " + TACHE_TABLE_NAME
             + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+    private static final String TACHE_SELECT_FROM_PROJET_ID = "SELECT * FROM " + TACHE_TABLE_NAME
+            + " WHERE " + ProjetQueryHandler.PROJET_ID + " = ?";
 
     public void insertTache(SQLiteDatabase db, Tache t) {
         DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -69,17 +74,29 @@ public class TacheQueryHandler {
         stmt.execute();
     }
 
-   /* public ArrayList<Tache> selectTacheFromProjetID(SQLiteDatabase mDB, int projetID) {
-        ArrayList<Tache> taches = new ArrayList<>();
+   public ArrayList<Tache> selectTacheFromProjetID(SQLiteDatabase mDB, int projetID) {
+       ArrayList<Tache> taches = new ArrayList<>();
+       SQLiteStatement stmt = mDB.compileStatement(TACHE_SELECT_FROM_PROJET_ID);
+       stmt.bindLong(1, projetID);
 
-        Cursor cursor = mDB.rawQuery(PROJET_SELECT_ALL, null);
+       Cursor cursor = mDB.rawQuery(TACHE_SELECT_FROM_PROJET_ID, new String[] {String.valueOf(projetID)});
         if (cursor.moveToFirst()) {
             do {
                 int id = cursor.getInt(cursor.getColumnIndex(TACHE_ID));
                 String name = cursor.getString(cursor.getColumnIndex(TACHE_NOM));
                 String desc = cursor.getString(cursor.getColumnIndex(TACHE_DESCRIPTION));
-                int state = cursor.getInt(cursor.getColumnIndex(PROJET_ETAT));
-                Tache t = new Tache(id, name, state);
+                String address = cursor.getString(cursor.getColumnIndex(TACHE_ADRESSE));
+                double longitude = cursor.getDouble(cursor.getColumnIndex(TACHE_LONGITUDE));
+                double latitude = cursor.getDouble(cursor.getColumnIndex(TACHE_LATITUDE));
+                Date[] dates = convertDates(cursor);
+                Date debutPrevu = dates[0];
+                Date debutReel = dates[1];
+                Date finPrevu = dates[2];
+                Date finReel = dates[3];
+                String commentaire = cursor.getString(cursor.getColumnIndex(TACHE_COMMENTAIRE));
+                int state = cursor.getInt(cursor.getColumnIndex(TACHE_ETAT));
+                float progression = cursor.getFloat(cursor.getColumnIndex(TACHE_PROGRESSION));
+                Tache t = new Tache(id, name, desc, address, longitude, latitude, debutPrevu, debutReel, finPrevu, finReel, commentaire, state, progression, projetID);
                 taches.add(t);
             } while (cursor.moveToNext());
         }
@@ -87,6 +104,61 @@ public class TacheQueryHandler {
         cursor.close();
 
         return taches;
-    }*/
+    }
+
+    private Date[] convertDates(Cursor cursor) {
+        Date[] dates = new Date[4];
+        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+
+        if (cursor.getString(cursor.getColumnIndex(TACHE_DEBUT_PREVU)).equals("")) {
+            dates[0] = null;
+        }
+        else {
+            try {
+                dates[0] = df.parse(cursor.getString(cursor.getColumnIndex(TACHE_DEBUT_PREVU)));
+            }
+            catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (cursor.getString(cursor.getColumnIndex(TACHE_DEBUT_REEL)).equals("")) {
+            dates[1] = null;
+        }
+        else {
+            try {
+                dates[1] = df.parse(cursor.getString(cursor.getColumnIndex(TACHE_DEBUT_REEL)));
+            }
+            catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (cursor.getString(cursor.getColumnIndex(TACHE_FIN_PREVU)).equals("")) {
+            dates[2] = null;
+        }
+        else {
+            try {
+                dates[2] = df.parse(cursor.getString(cursor.getColumnIndex(TACHE_FIN_PREVU)));
+            }
+            catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (cursor.getString(cursor.getColumnIndex(TACHE_FIN_REEL)).equals("")) {
+            dates[3] = null;
+        }
+        else {
+            try {
+                dates[3] = df.parse(cursor.getString(cursor.getColumnIndex(TACHE_FIN_REEL)));
+            }
+            catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return dates;
+    }
 
 }

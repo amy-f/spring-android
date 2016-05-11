@@ -3,6 +3,8 @@ package handlers;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.util.ArrayList;
+
 import beans.Tache;
 import dbaccess.DBHandler;
 import dbaccess.TacheQueryHandler;
@@ -23,6 +25,11 @@ public class TacheHandler {
     public void insertTache(Tache t) {
         SQLiteDatabase writableDB = db.getWritableDatabase();
         dbQuery.insertTache(writableDB, t);
+    }
+
+    public ArrayList<Tache> selectTacheFromProjetID(int projetID) {
+        SQLiteDatabase writableDB = db.getWritableDatabase();
+        return dbQuery.selectTacheFromProjetID(writableDB, projetID);
     }
 
 }
