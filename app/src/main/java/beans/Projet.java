@@ -1,5 +1,6 @@
 package beans;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -11,27 +12,18 @@ public class Projet {
     private int id;
     private String nom;
     private int etat;
+    private ArrayList<Tache> taches;
 
     /**
      * Constructeur sans paramètres
      */
     public Projet() {}
 
-    /**
-     * Constructeur avec paramètres
-     * @param id l'ID du projet dans la base de données
-     * @param nom le nom du projet
-     */
-    public Projet(int id, String nom, Date dateDebut, Date dateFin) {
-        this.id = id;
-        this.nom = nom;
-
-    }
-
     public Projet(int id, String nom, int etat) {
         this.id = id;
         this.nom = nom;
         this.etat = etat;
+        this.taches = new ArrayList<>();
     }
 
     public int getId() {
@@ -56,5 +48,13 @@ public class Projet {
 
     public void setEtat(int etat) {
         this.etat = etat;
+    }
+
+    public ArrayList<Tache> getTaches() {
+        return taches;
+    }
+
+    public void setTaches(ArrayList<Tache> taches) {
+        this.taches = taches;
     }
 }

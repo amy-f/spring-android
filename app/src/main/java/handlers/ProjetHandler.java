@@ -3,6 +3,8 @@ package handlers;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.util.ArrayList;
+
 import beans.Projet;
 import dbaccess.DBHandler;
 import dbaccess.ProjetQueryHandler;
@@ -23,6 +25,13 @@ public class ProjetHandler {
     public void insertProjet(Projet p) {
         SQLiteDatabase writableDB = db.getWritableDatabase();
         dbQuery.insertProjet(writableDB, p);
+    }
+
+    public ArrayList<Projet> selectAllProjet() {
+        ArrayList<Projet> projets;
+        SQLiteDatabase writableDB = db.getWritableDatabase();
+        projets = dbQuery.selectAllProjet(writableDB);
+        return projets;
     }
 
 }
