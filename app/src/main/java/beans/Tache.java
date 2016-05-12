@@ -1,12 +1,18 @@
 package beans;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
  * Created by Amélie on 2016-04-25.
  * La définition de la tâche associée à un projet donné
  */
-public class Tache {
+public class Tache implements Parcelable{
 
     private int id;
     private String nom;
@@ -40,6 +46,38 @@ public class Tache {
         this.etat = etat;
         this.progression = progression;
         this.projetID = projetID;
+    }
+
+    public static final Parcelable.Creator<Tache> CREATOR = new Parcelable.Creator<Tache>()
+    {
+        @Override
+        public Tache createFromParcel(Parcel source)
+        {
+            return new Tache(source);
+        }
+
+        @Override
+        public Tache[] newArray(int size)
+        {
+            return new Tache[size];
+        }
+    };
+
+    public Tache(Parcel in) {
+        this.id = in.readInt();
+        this.nom = in.readString();
+        this.description = in.readString();
+        this.adresse = in.readString();
+        this.longitude = in.readDouble();
+        this.latitude = in.readDouble();
+        this.dateDebutPrevue = convertStringToDate(in.readString());
+        this.dateDebutReelle = convertStringToDate(in.readString());
+        this.dateFinPrevue = convertStringToDate(in.readString());
+        this.dateFinReelle = convertStringToDate(in.readString());
+        this.commentaire = in.readString();
+        this.etat = in.readInt();
+        this.progression = in.readFloat();
+        this.projetID = in.readInt();
     }
 
     public int getId() {
@@ -152,5 +190,56 @@ public class Tache {
 
     public void setProjetID(int projetID) {
         this.projetID = projetID;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(nom);
+        dest.writeString(description);
+        dest.writeString(adresse);
+        dest.writeDouble(longitude);
+        dest.writeDouble(latitude);
+        dest.writeString(convertDateToString(dateDebutPrevue));
+        dest.writeString(convertDateToString(dateDebutReelle));
+        dest.writeString(convertDateToString(dateFinPrevue));
+        dest.writeString(convertDateToString(dateFinReelle));
+        dest.writeString(commentaire);
+        dest.writeInt(etat);
+        dest.writeFloat(progression);
+        dest.writeInt(projetID);
+    }
+
+    private String convertDateToString(Date date) {
+        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        if (date == null) {
+            return "";
+        }
+        else {
+            return df.format(date);
+        }
+    }
+
+    private Date convertStringToDate(String str) {
+        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        if (str.equals("")) {
+            return null;
+        }
+        else {
+            Date d;
+            try {
+                d = df.parse(str);
+                return d;
+            }
+            catch (ParseException ex) {
+                ex.printStackTrace();
+                return null;
+            }
+        }
     }
 }
