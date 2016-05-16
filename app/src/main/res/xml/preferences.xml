@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference android:title="Numéro d'utilisateur"
+        android:key="utilisateur_id"
+        android:summary="Entrez votre numéro d'identification"></EditTextPreference>
+    <EditTextPreference android:title="Prénom de l'utilisateur"
+        android:key="utilisateur_nom"
+        android:summary="Entrez votre prénom"></EditTextPreference>
+</PreferenceScreen>

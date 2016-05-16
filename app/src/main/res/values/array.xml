@@ -1,0 +1,7 @@
+<resources>
+    <string-array name="listArray">
+        <item>utilisateur_id</item>
+        <item>utilisateur_nom</item>
+        <item>firstUse</item>
+    </string-array>
+</resources>

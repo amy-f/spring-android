@@ -19,4 +19,6 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="deconnecxion">Déconnexion</string>
+    <string name="sync">Synchronisation</string>
 </resources>
