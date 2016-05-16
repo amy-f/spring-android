@@ -20,6 +20,8 @@ public class TacheQueryHandler {
     public static final String TACHE_ID = "tache_id";
     public static final String TACHE_NOM = "tache_nom";
     public static final String TACHE_ADRESSE = "tache_adresse";
+    public static final String TACHE_CODEPOSTAL = "tache_code_postal";
+    public static final String TACHE_VILLE = "tache_ville";
     public static final String TACHE_DESCRIPTION = "tache_description";
     public static final String TACHE_LONGITUDE = "tache_longitude";
     public static final String TACHE_LATITUDE = "tache_latitude";
@@ -37,6 +39,10 @@ public class TacheQueryHandler {
 
     private static final String TACHE_SELECT_FROM_PROJET_ID = "SELECT * FROM " + TACHE_TABLE_NAME
             + " WHERE " + ProjetQueryHandler.PROJET_ID + " = ?";
+
+    private static final String TACHE_UPDATE_FROM_TACHE_ID = "UPDATE " + TACHE_TABLE_NAME +
+            " SET " + TACHE_DEBUT_REEL + " = ?, " + TACHE_FIN_REEL + " = ?, " + TACHE_COMMENTAIRE + " = ?, "
+            + TACHE_PROGRESSION + " = ? WHERE " + TACHE_ID + " = ?";
 
     public void insertTache(SQLiteDatabase db, Tache t) {
         DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -86,6 +92,8 @@ public class TacheQueryHandler {
                 String name = cursor.getString(cursor.getColumnIndex(TACHE_NOM));
                 String desc = cursor.getString(cursor.getColumnIndex(TACHE_DESCRIPTION));
                 String address = cursor.getString(cursor.getColumnIndex(TACHE_ADRESSE));
+                //String zipCode = cursor.getString(cursor.getColumnIndex(TACHE_CODEPOSTAL));
+                //String city = cursor.getString(cursor.getColumnIndex(TACHE_VILLE));
                 double longitude = cursor.getDouble(cursor.getColumnIndex(TACHE_LONGITUDE));
                 double latitude = cursor.getDouble(cursor.getColumnIndex(TACHE_LATITUDE));
                 Date[] dates = convertDates(cursor);
@@ -97,6 +105,7 @@ public class TacheQueryHandler {
                 int state = cursor.getInt(cursor.getColumnIndex(TACHE_ETAT));
                 float progression = cursor.getFloat(cursor.getColumnIndex(TACHE_PROGRESSION));
                 Tache t = new Tache(id, name, desc, address, longitude, latitude, debutPrevu, debutReel, finPrevu, finReel, commentaire, state, progression, projetID);
+                //Tache t = new Tache(id, name, desc, address, zipCode, city, longitude, latitude, debutPrevu, debutReel, finPrevu, finReel, commentaire, state, progression, projetID);
                 taches.add(t);
             } while (cursor.moveToNext());
         }
@@ -104,6 +113,54 @@ public class TacheQueryHandler {
         cursor.close();
 
         return taches;
+    }
+
+    public int updateTache(SQLiteDatabase mDB, Tache t) {
+
+        //Met les données nécessaires dans la requête préparée
+        try {
+            SQLiteStatement stmt = mDB.compileStatement(TACHE_UPDATE_FROM_TACHE_ID);
+            stmt.bindString(1, convertDateToString(t.getDateDebutReelle()));
+            stmt.bindString(2, convertDateToString(t.getDateFinReelle()));
+            stmt.bindString(3, t.getCommentaire());
+            stmt.bindDouble(4, t.getProgression());
+            stmt.bindLong(5, t.getId());
+
+            //Exécute la query et retourne le nombre de lignes modifiées
+            return stmt.executeUpdateDelete();
+        }
+        catch (Exception e) {
+           e.printStackTrace();
+        }
+        return 0;
+    }
+
+    private String convertDateToString(Date date) {
+        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        if (date == null) {
+            return "";
+        }
+        else {
+            return df.format(date);
+        }
+    }
+
+    private Date convertStringToDate(String str) {
+        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        if (str.equals("")) {
+            return null;
+        }
+        else {
+            Date d;
+            try {
+                d = df.parse(str);
+                return d;
+            }
+            catch (ParseException ex) {
+                ex.printStackTrace();
+                return null;
+            }
+        }
     }
 
     private Date[] convertDates(Cursor cursor) {

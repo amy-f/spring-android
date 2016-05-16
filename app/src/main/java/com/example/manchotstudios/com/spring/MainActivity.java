@@ -1,11 +1,15 @@
 package com.example.manchotstudios.com.spring;
 
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.DataSetObserver;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -32,11 +36,15 @@ import handlers.ProjetHandler;
 import handlers.TacheHandler;
 
 
-public class  MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity {
 
     private ArrayList<Tache> late;
     private ArrayList<Tache> today;
-    //private ArrayList<Task> rdv;
+    private TacheHandler tacheHandler;
+
+    private Spinner spinner;
+    private ListView lstLate;
+    private ListView lstToday;
 
     private ArrayList<Projet> projets = new ArrayList<>();
 
@@ -47,33 +55,9 @@ public class  MainActivity extends AppCompatActivity {
 
         //Va chercher les handlers
         ProjetHandler projetHandler = new ProjetHandler(getApplicationContext());
-        TacheHandler tacheHandler = new TacheHandler(getApplicationContext());
+        tacheHandler = new TacheHandler(getApplicationContext());
         late = new ArrayList<>();
         today = new ArrayList<>();
-
-        //Insère les données dans le projet (ONE TIME ONLY!)
-       /* Projet droidProjet = new Projet(1, "TP Android", 1);
-        Projet webProjet = new Projet(2, "TP Web PHP", 1);
-        ArrayList<Tache> droidTaches = new ArrayList<>();
-        ArrayList<Tache> webTaches = new ArrayList<>();
-        droidTaches.add(new Tache(1, "Interface Android", "Préparation de l'interface Android", "475 rue du Cégep",
-                45.411185, -71.886196, new Date(), null, new Date(), null, null, 1, 0, droidProjet.getId()));
-        droidTaches.add(new Tache(2, "Base de données", "Préparation et tests de la base de données SQLite", "475 rue du Cégep",
-                45.411185, -71.886196, new Date(), null, new Date(), null, null, 1, 0, droidProjet.getId()));
-        droidTaches.add(new Tache(3, "Synchronisation", "Synchronisation avec la base de données Web", "475 rue du Cégep",
-                45.411185, -71.886196, new Date(), null, new Date(), null, null, 1, 0, droidProjet.getId()));
-        webTaches.add(new Tache(4, "Interface Web", "Préparation de l'interface Web", "475 rue du Cégep",
-                45.411185, -71.886196, new Date(), null, new Date(), null, null, 1, 0, webProjet.getId()));
-        webTaches.add(new Tache(5, "Base de données", "Préparation de la base de données mySQL", "475 rue du Cégep",
-                45.411185, -71.886196, new Date(), null, new Date(), null, null, 1, 0, webProjet.getId()));
-        projetHandler.insertProjet(droidProjet);
-        projetHandler.insertProjet(webProjet);
-        for (int i = 0; i < droidTaches.size(); i++) {
-            tacheHandler.insertTache(droidTaches.get(i));
-        }
-        for (int i = 0; i < webTaches.size(); i++) {
-            tacheHandler.insertTache(webTaches.get(i));
-        }*/
 
         //Va chercher les informations dans la base de données et les insère dans le spinner
         ArrayList<Projet> projetsData = projetHandler.selectAllProjet();
@@ -90,19 +74,14 @@ public class  MainActivity extends AppCompatActivity {
         }
 
         //Retrouve les élémnents dont on a besoin
-        Spinner spinner = (Spinner) findViewById(R.id.spin);
-        ListView lstLate = (ListView) findViewById(R.id.lstLate);
-        ListView lstToday = (ListView) findViewById(R.id.lstToday);
-        //ListView lstRDV = (ListView) findViewById(R.id.lstMeet);
+        spinner = (Spinner) findViewById(R.id.spin);
+        lstLate = (ListView) findViewById(R.id.lstLate);
+        lstToday = (ListView) findViewById(R.id.lstToday);
 
         //Gère le listener du spinner
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Spinner spinner = (Spinner) findViewById(R.id.spin);
-                ListView lstLate = (ListView) findViewById(R.id.lstLate);
-                ListView lstToday = (ListView) findViewById(R.id.lstToday);
-
                 updateListesTaches((Projet) spinner.getSelectedItem());
                 //ajouter les valeurs dans l'adapter
                 TaskAdapter adaptLate = new TaskAdapter(late);
@@ -132,25 +111,59 @@ public class  MainActivity extends AppCompatActivity {
         TaskAdapter adaptToday = new TaskAdapter(today);
         lstToday.setAdapter(adaptToday);
 
-        //TaskAdapter adaptRDV = new TaskAdapter(rdv);
-        //lstRDV.setAdapter(adaptRDV);
-
         lstLate.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+                final Tache t = late.get(position);
                 AlertDialog.Builder info = new AlertDialog.Builder(MainActivity.this)
                         .setTitle("Description de la tâche")
                         .setMessage(late.get(position).getDescription())
-                        .setNeutralButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
+                        .setPositiveButton("Mettre à jour", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                Intent myIntent = new Intent(((Dialog) dialog).getContext(), TacheActivity.class);
+                                myIntent.putExtra("tache", t);
+                                startActivityForResult(myIntent, 60);   //indique le code à retourner à la fin de l'activité
+                            }
+                        })
+                        .setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
                             }
                         });
                 info.show();
             }
         });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch(requestCode) {
+            case (60) : {
+                if (resultCode == Activity.RESULT_OK) {
+                    int updatedRows = data.getIntExtra("nbUpdatedRows", 0);
+                    if (updatedRows > 0) {
+
+                        Toast.makeText(getApplicationContext(), R.string.modif_tache, Toast.LENGTH_SHORT).show();
+
+                        //Sélectionne les taches associées à chaque projet et les met dans la liste de taches du projet
+                        for (Projet p : projets) {
+                            ArrayList<Tache> taches = tacheHandler.selectTacheFromProjetID(p.getId());
+                            p.setTaches(taches);
+                        }
+                        updateListesTaches((Projet) spinner.getSelectedItem());
+                        TaskAdapter adaptLate = new TaskAdapter(late);
+                        lstLate.setAdapter(adaptLate);
+                        TaskAdapter adaptToday = new TaskAdapter(today);
+                        lstToday.setAdapter(adaptToday);
+                    }
+                    else {
+                        Toast.makeText(getApplicationContext(), R.string.update_tache_error, Toast.LENGTH_SHORT).show();
+                    }
+                }
+                break;
+            }
+        }
     }
 
 
@@ -185,8 +198,6 @@ public class  MainActivity extends AppCompatActivity {
 
     class TaskWrapper{
         private TextView title = null;
-        private CheckBox started = null;
-        private CheckBox done = null;
         private View row = null;
 
         /**
@@ -207,35 +218,11 @@ public class  MainActivity extends AppCompatActivity {
         }
 
         /**
-         * Obtient le checkbox de started
-         * @return le checkbox de started
-         */
-        public CheckBox getStarted(){
-            if(started == null){
-                started = (CheckBox) row.findViewById(R.id.chkStarted);
-            }
-            return started;
-        }
-
-        /**
-         * Obtient le checkbox de done
-         * @return le checkbox de done
-         */
-        public CheckBox getDone() {
-            if (done == null) {
-                done = (CheckBox) row.findViewById(R.id.chkDone);
-            }
-            return done;
-        }
-
-        /**
          * Met les valeur de l'objet task dans la rangée
          * @param t la tâche à insérer
          */
         public void setTask(Tache t){
             getTitle().setText(t.getNom());
-            getStarted().setChecked(t.getDateDebutReelle() != null);
-            getDone().setChecked(t.getDateFinReelle() != null);
         }
     }
 
@@ -301,10 +288,10 @@ public class  MainActivity extends AppCompatActivity {
         late = new ArrayList<>();
         today = new ArrayList<>();
         for (Tache t : taches) {
-            if (todayDate.after(t.getDateDebutPrevue())) {
+            if (todayDate.after(t.getDateDebutPrevue()) && t.getDateFinReelle() == null) {
                 late.add(t);
             }
-            else if (todayDate == t.getDateDebutPrevue()) {
+            else if (todayDate == t.getDateDebutPrevue() && t.getDateFinReelle() == null) {
                 today.add(t);
             }
         }

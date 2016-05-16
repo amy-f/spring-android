@@ -32,4 +32,9 @@ public class TacheHandler {
         return dbQuery.selectTacheFromProjetID(writableDB, projetID);
     }
 
+    public int updateTache(Tache t) {
+        SQLiteDatabase writableDB = db.getWritableDatabase();
+        return dbQuery.updateTache(writableDB, t);
+    }
+
 }

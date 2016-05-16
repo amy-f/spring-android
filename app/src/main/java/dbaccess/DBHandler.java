@@ -18,6 +18,8 @@ public class DBHandler extends SQLiteOpenHelper {
             + TacheQueryHandler.TACHE_NOM + " TEXT, "
             + TacheQueryHandler.TACHE_DESCRIPTION + " TEXT, "
             + TacheQueryHandler.TACHE_ADRESSE + " INTEGER, " +
+            TacheQueryHandler.TACHE_CODEPOSTAL + " TEXT, " +
+            TacheQueryHandler.TACHE_VILLE + " TEXT, " +
             TacheQueryHandler.TACHE_LONGITUDE + " REAL, " +
             TacheQueryHandler.TACHE_LATITUDE + " REAL, " +
             TacheQueryHandler.TACHE_DEBUT_PREVU + " TEXT, " +
