@@ -39,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<Tache> late;
     private ArrayList<Tache> today;
-    //private ArrayList<Task> rdv;
 
     private ArrayList<Projet> projets = new ArrayList<>();
 
@@ -72,7 +71,6 @@ public class MainActivity extends AppCompatActivity {
         Spinner spinner = (Spinner) findViewById(R.id.spin);
         ListView lstLate = (ListView) findViewById(R.id.lstLate);
         ListView lstToday = (ListView) findViewById(R.id.lstToday);
-        //ListView lstRDV = (ListView) findViewById(R.id.lstMeet);
 
         //Gère le listener du spinner
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -110,9 +108,6 @@ public class MainActivity extends AppCompatActivity {
 
         TaskAdapter adaptToday = new TaskAdapter(today);
         lstToday.setAdapter(adaptToday);
-
-        //TaskAdapter adaptRDV = new TaskAdapter(rdv);
-        //lstRDV.setAdapter(adaptRDV);
 
         lstLate.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -170,8 +165,6 @@ public class MainActivity extends AppCompatActivity {
 
     class TaskWrapper{
         private TextView title = null;
-        private CheckBox started = null;
-        private CheckBox done = null;
         private View row = null;
 
         /**
@@ -192,35 +185,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         /**
-         * Obtient le checkbox de started
-         * @return le checkbox de started
-         */
-       /* public CheckBox getStarted(){
-            if(started == null){
-                started = (CheckBox) row.findViewById(R.id.chkStarted);
-            }
-            return started;
-        }
-
-        *//**
-         * Obtient le checkbox de done
-         * @return le checkbox de done
-         *//*
-        public CheckBox getDone() {
-            if (done == null) {
-                done = (CheckBox) row.findViewById(R.id.chkDone);
-            }
-            return done;
-        }*/
-
-        /**
          * Met les valeur de l'objet task dans la rangée
          * @param t la tâche à insérer
          */
         public void setTask(Tache t){
             getTitle().setText(t.getNom());
-           /* getStarted().setChecked(t.getDateDebutReelle() != null);
-            getDone().setChecked(t.getDateFinReelle() != null);*/
         }
     }
 
@@ -286,10 +255,10 @@ public class MainActivity extends AppCompatActivity {
         late = new ArrayList<>();
         today = new ArrayList<>();
         for (Tache t : taches) {
-            if (todayDate.after(t.getDateDebutPrevue())) {
+            if (todayDate.after(t.getDateDebutPrevue()) && t.getDateFinReelle() == null) {
                 late.add(t);
             }
-            else if (todayDate == t.getDateDebutPrevue()) {
+            else if (todayDate == t.getDateDebutPrevue() && t.getDateFinReelle() == null) {
                 today.add(t);
             }
         }

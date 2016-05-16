@@ -81,7 +81,7 @@
         android:layout_width="115dp"
         android:layout_height="wrap_content"
         android:text="Soumettre"
-        android:id="@+id/button"
+        android:id="@+id/submitButton"
         android:layout_gravity="bottom|right"
         android:textColor="#d8d8d8"
         android:background="#555555" />

@@ -2,4 +2,7 @@
     <string name="app_name">Spring</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_tache">TacheActivity</string>
+    <string name="submit_tache_error">Veuillez indiquer un commentaire pour valider la tâche.</string>
+    <string name="update_tache_error">Impossible de modifier les </string>
+    <string name="modif_tache">La tâche a bien été modifiée.</string>
 </resources>

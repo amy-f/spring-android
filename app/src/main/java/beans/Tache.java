@@ -18,6 +18,8 @@ public class Tache implements Parcelable{
     private String nom;
     private String description;
     private String adresse;
+    private String codePostal;
+    private String ville;
     private double longitude;
     private double latitude;
     private Date dateDebutPrevue;
@@ -31,11 +33,31 @@ public class Tache implements Parcelable{
 
     public Tache() {}
 
+    //TODO: This constructor is not good, it lacks zip code and city. Remove after tests.
     public Tache(int id, String nom, String description, String adresse, double longitude, double latitude, Date dateDebutPrevue, Date dateDebutReelle, Date dateFinPrevue, Date dateFinReelle, String commentaire, int etat, float progression, int projetID) {
         this.id = id;
         this.nom = nom;
         this.description = description;
         this.adresse = adresse;
+        this.longitude = longitude;
+        this.latitude = latitude;
+        this.dateDebutPrevue = dateDebutPrevue;
+        this.dateDebutReelle = dateDebutReelle;
+        this.dateFinPrevue = dateFinPrevue;
+        this.dateFinReelle = dateFinReelle;
+        this.commentaire = commentaire;
+        this.etat = etat;
+        this.progression = progression;
+        this.projetID = projetID;
+    }
+
+    public Tache(int id, String nom, String description, String adresse, String codePostal, String ville, double longitude, double latitude, Date dateDebutPrevue, Date dateDebutReelle, Date dateFinPrevue, Date dateFinReelle, String commentaire, int etat, float progression, int projetID) {
+        this.id = id;
+        this.nom = nom;
+        this.description = description;
+        this.adresse = adresse;
+        this.codePostal = codePostal;
+        this.ville = ville;
         this.longitude = longitude;
         this.latitude = latitude;
         this.dateDebutPrevue = dateDebutPrevue;
@@ -68,6 +90,8 @@ public class Tache implements Parcelable{
         this.nom = in.readString();
         this.description = in.readString();
         this.adresse = in.readString();
+        //this.codePostal = in.readString();  //TODO: Uncomment after tests
+        //this.ville = in.readString();
         this.longitude = in.readDouble();
         this.latitude = in.readDouble();
         this.dateDebutPrevue = convertStringToDate(in.readString());
@@ -203,6 +227,8 @@ public class Tache implements Parcelable{
         dest.writeString(nom);
         dest.writeString(description);
         dest.writeString(adresse);
+        //dest.writeString(codePostal);     //TODO: Uncomment after tests
+        //dest.writeString(ville);
         dest.writeDouble(longitude);
         dest.writeDouble(latitude);
         dest.writeString(convertDateToString(dateDebutPrevue));
