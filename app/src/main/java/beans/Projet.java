@@ -1,5 +1,6 @@
 package beans;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -8,34 +9,22 @@ import java.util.Date;
  */
 public class Projet {
 
-    //TODO: Est-ce qu'on garde le token? Évaluer sa pertinence.
     private int id;
     private String nom;
-    private Date dateDebut;
-    private Date dateFin;
-    private String token;
+    private int etat;
+    private ArrayList<Tache> taches;
 
     /**
      * Constructeur sans paramètres
      */
     public Projet() {}
 
-    /**
-     * Constructeur avec paramètres
-     * @param id l'ID du projet dans la base de données
-     * @param nom le nom du projet
-     * @param dateDebut la date de début du projet
-     * @param dateFin la date de fin du projet
-     * @param token chaîne de caractères générée à la création du projet, sert à accéder à un projet donné via son URL
-     */
-    public Projet(int id, String nom, Date dateDebut, Date dateFin, String token) {
+    public Projet(int id, String nom, int etat) {
         this.id = id;
         this.nom = nom;
-        this.dateDebut = dateDebut;
-        this.dateFin = dateFin;
-        this.token = token;
+        this.etat = etat;
+        this.taches = new ArrayList<>();
     }
-
 
     public int getId() {
         return id;
@@ -53,27 +42,19 @@ public class Projet {
         this.nom = nom;
     }
 
-    public Date getDateDebut() {
-        return dateDebut;
+    public int getEtat() {
+        return etat;
     }
 
-    public void setDateDebut(Date dateDebut) {
-        this.dateDebut = dateDebut;
+    public void setEtat(int etat) {
+        this.etat = etat;
     }
 
-    public Date getDateFin() {
-        return dateFin;
+    public ArrayList<Tache> getTaches() {
+        return taches;
     }
 
-    public void setDateFin(Date dateFin) {
-        this.dateFin = dateFin;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
+    public void setTaches(ArrayList<Tache> taches) {
+        this.taches = taches;
     }
 }

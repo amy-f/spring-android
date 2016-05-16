@@ -12,27 +12,33 @@ public class Tache {
     private String nom;
     private String description;
     private String adresse;
+    private double longitude;
+    private double latitude;
     private Date dateDebutPrevue;
     private Date dateDebutReelle;
     private Date dateFinPrevue;
     private Date dateFinReelle;
     private String commentaire;
-    private int typeTacheID;
+    private int etat;
+    private float progression;
     private int projetID;
 
     public Tache() {}
 
-    public Tache(int id, String nom, String description, String adresse, Date dateDebutPrevue, Date dateDebutReelle, Date dateFinPrevue, Date dateFinReelle, String commentaire, int typeTacheID, int projetID) {
+    public Tache(int id, String nom, String description, String adresse, double longitude, double latitude, Date dateDebutPrevue, Date dateDebutReelle, Date dateFinPrevue, Date dateFinReelle, String commentaire, int etat, float progression, int projetID) {
         this.id = id;
         this.nom = nom;
         this.description = description;
         this.adresse = adresse;
+        this.longitude = longitude;
+        this.latitude = latitude;
         this.dateDebutPrevue = dateDebutPrevue;
         this.dateDebutReelle = dateDebutReelle;
         this.dateFinPrevue = dateFinPrevue;
         this.dateFinReelle = dateFinReelle;
         this.commentaire = commentaire;
-        this.typeTacheID = typeTacheID;
+        this.etat = etat;
+        this.progression = progression;
         this.projetID = projetID;
     }
 
@@ -100,20 +106,44 @@ public class Tache {
         this.dateFinReelle = dateFinReelle;
     }
 
-    public int getTypeTacheID() {
-        return typeTacheID;
-    }
-
-    public void setTypeTacheID(int typeTacheID) {
-        this.typeTacheID = typeTacheID;
-    }
-
     public String getCommentaire() {
         return commentaire;
     }
 
     public void setCommentaire(String commentaire) {
         this.commentaire = commentaire;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public int getEtat() {
+        return etat;
+    }
+
+    public void setEtat(int etat) {
+        this.etat = etat;
+    }
+
+    public float getProgression() {
+        return progression;
+    }
+
+    public void setProgression(float progression) {
+        this.progression = progression;
     }
 
     public int getProjetID() {
