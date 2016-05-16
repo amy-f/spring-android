@@ -1,5 +1,6 @@
 package com.example.manchotstudios.com.spring;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -39,6 +40,11 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<Tache> late;
     private ArrayList<Tache> today;
+    private TacheHandler tacheHandler;
+
+    private Spinner spinner;
+    private ListView lstLate;
+    private ListView lstToday;
 
     private ArrayList<Projet> projets = new ArrayList<>();
 
@@ -49,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Va chercher les handlers
         ProjetHandler projetHandler = new ProjetHandler(getApplicationContext());
-        TacheHandler tacheHandler = new TacheHandler(getApplicationContext());
+        tacheHandler = new TacheHandler(getApplicationContext());
         late = new ArrayList<>();
         today = new ArrayList<>();
 
@@ -68,18 +74,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //Retrouve les élémnents dont on a besoin
-        Spinner spinner = (Spinner) findViewById(R.id.spin);
-        ListView lstLate = (ListView) findViewById(R.id.lstLate);
-        ListView lstToday = (ListView) findViewById(R.id.lstToday);
+        spinner = (Spinner) findViewById(R.id.spin);
+        lstLate = (ListView) findViewById(R.id.lstLate);
+        lstToday = (ListView) findViewById(R.id.lstToday);
 
         //Gère le listener du spinner
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Spinner spinner = (Spinner) findViewById(R.id.spin);
-                ListView lstLate = (ListView) findViewById(R.id.lstLate);
-                ListView lstToday = (ListView) findViewById(R.id.lstToday);
-
                 updateListesTaches((Projet) spinner.getSelectedItem());
                 //ajouter les valeurs dans l'adapter
                 TaskAdapter adaptLate = new TaskAdapter(late);
@@ -120,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int id) {
                                 Intent myIntent = new Intent(((Dialog) dialog).getContext(), TacheActivity.class);
                                 myIntent.putExtra("tache", t);
-                                startActivity(myIntent);
+                                startActivityForResult(myIntent, 60);   //indique le code à retourner à la fin de l'activité
                             }
                         })
                         .setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
@@ -131,6 +133,37 @@ public class MainActivity extends AppCompatActivity {
                 info.show();
             }
         });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch(requestCode) {
+            case (60) : {
+                if (resultCode == Activity.RESULT_OK) {
+                    int updatedRows = data.getIntExtra("nbUpdatedRows", 0);
+                    if (updatedRows > 0) {
+
+                        Toast.makeText(getApplicationContext(), R.string.modif_tache, Toast.LENGTH_SHORT).show();
+
+                        //Sélectionne les taches associées à chaque projet et les met dans la liste de taches du projet
+                        for (Projet p : projets) {
+                            ArrayList<Tache> taches = tacheHandler.selectTacheFromProjetID(p.getId());
+                            p.setTaches(taches);
+                        }
+                        updateListesTaches((Projet) spinner.getSelectedItem());
+                        TaskAdapter adaptLate = new TaskAdapter(late);
+                        lstLate.setAdapter(adaptLate);
+                        TaskAdapter adaptToday = new TaskAdapter(today);
+                        lstToday.setAdapter(adaptToday);
+                    }
+                    else {
+                        Toast.makeText(getApplicationContext(), R.string.update_tache_error, Toast.LENGTH_SHORT).show();
+                    }
+                }
+                break;
+            }
+        }
     }
 
 
