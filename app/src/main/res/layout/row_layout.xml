@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="75dp">
+
+    <TextView
+        android:layout_width="120dp"
+        android:layout_height="match_parent"
+        android:id="@+id/tx_tache_id"
+        android:layout_alignParentLeft="true"
+        android:text="Test"
+        android:gravity="center"
+        android:textAppearance="?android:textAppearanceLarge"/>
+
+    <TextView
+        android:layout_width="120dp"
+        android:layout_height="match_parent"
+        android:id="@+id/tx_tache_nom"
+        android:layout_toRightOf="@+id/tx_tache_id"
+        android:text="Test"
+        android:gravity="center"
+        android:textAppearance="?android:textAppearanceLarge"/>
+
+    <TextView
+        android:layout_width="120dp"
+        android:layout_height="match_parent"
+        android:id="@+id/tx_tache_desc"
+        android:layout_toRightOf="@+id/tx_tache_nom"
+        android:text="Test"
+        android:gravity="center"
+        android:textAppearance="?android:textAppearanceLarge"/>
+
+    <TextView
+        android:layout_width="120dp"
+        android:layout_height="match_parent"
+        android:id="@+id/tx_tache_adresse"
+        android:layout_toRightOf="@+id/tx_tache_desc"
+        android:text="Test"
+        android:gravity="center"
+        android:textAppearance="?android:textAppearanceLarge"/>
+
+    <TextView
+        android:layout_width="120dp"
+        android:layout_height="match_parent"
+        android:id="@+id/tx_tache_ville"
+        android:layout_toRightOf="@+id/tx_tache_adresse"
+        android:text="Test"
+        android:gravity="center"
+        android:textAppearance="?android:textAppearanceLarge"/>
+
+    <TextView
+        android:layout_width="120dp"
+        android:layout_height="match_parent"
+        android:id="@+id/tx_tache_cp"
+        android:layout_toRightOf="@+id/tx_tache_ville"
+        android:text="Test"
+        android:gravity="center"
+        android:textAppearance="?android:textAppearanceLarge"/>
+
+    <TextView
+        android:layout_width="120dp"
+        android:layout_height="match_parent"
+        android:id="@+id/tx_tache_longitude"
+        android:layout_toRightOf="@+id/tx_tache_cp"
+        android:text="Test"
+        android:gravity="center"
+        android:textAppearance="?android:textAppearanceLarge"/>
+
+    <TextView
+        android:layout_width="120dp"
+        android:layout_height="match_parent"
+        android:id="@+id/tx_tache_latitude"
+        android:layout_toRightOf="@+id/tx_tache_longitude"
+        android:text="Test"
+        android:gravity="center"
+        android:textAppearance="?android:textAppearanceLarge"/>
+
+    <TextView
+        android:layout_width="120dp"
+        android:layout_height="match_parent"
+        android:id="@+id/tx_tache_debut_prevu"
+        android:layout_toRightOf="@+id/tx_tache_latitude"
+        android:text="Test"
+        android:gravity="center"
+        android:textAppearance="?android:textAppearanceLarge"/>
+
+    <TextView
+        android:layout_width="120dp"
+        android:layout_height="match_parent"
+        android:id="@+id/tx_tache_fin_prevu"
+        android:layout_toRightOf="@+id/tx_tache_debut_prevu"
+        android:text="Test"
+        android:gravity="center"
+        android:textAppearance="?android:textAppearanceLarge"/>
+
+    <TextView
+        android:layout_width="120dp"
+        android:layout_height="match_parent"
+        android:id="@+id/tx_tache_debut"
+        android:layout_toRightOf="@+id/tx_tache_fin_prevu"
+        android:text="Test"
+        android:gravity="center"
+        android:textAppearance="?android:textAppearanceLarge"/>
+
+    <TextView
+        android:layout_width="120dp"
+        android:layout_height="match_parent"
+        android:id="@+id/tx_tache_fin"
+        android:layout_toRightOf="@+id/tx_tache_debut"
+        android:text="Test"
+        android:gravity="center"
+        android:textAppearance="?android:textAppearanceLarge"/>
+
+    <TextView
+        android:layout_width="120dp"
+        android:layout_height="match_parent"
+        android:id="@+id/tx_tache_commentaire"
+        android:layout_toRightOf="@+id/tx_tache_fin"
+        android:text="Test"
+        android:gravity="center"
+        android:textAppearance="?android:textAppearanceLarge"/>
+
+    <TextView
+        android:layout_width="120dp"
+        android:layout_height="match_parent"
+        android:id="@+id/tx_tache_etat"
+        android:layout_toRightOf="@+id/tx_tache_commentaire"
+        android:text="Test"
+        android:gravity="center"
+        android:textAppearance="?android:textAppearanceLarge"/>
+
+    <TextView
+        android:layout_width="120dp"
+        android:layout_height="match_parent"
+        android:id="@+id/tx_tache_progression"
+        android:layout_toRightOf="@+id/tx_tache_etat"
+        android:text="Test"
+        android:gravity="center"
+        android:textAppearance="?android:textAppearanceLarge"/>
+
+    <TextView
+        android:layout_width="120dp"
+        android:layout_height="match_parent"
+        android:id="@+id/tx_tache_projet_id"
+        android:layout_toRightOf="@+id/tx_tache_progression"
+        android:text="Test"
+        android:gravity="center"
+        android:textAppearance="?android:textAppearanceLarge"/>
+
+    <TextView
+        android:layout_width="120dp"
+        android:layout_height="match_parent"
+        android:id="@+id/tx_projet_nom"
+        android:layout_toRightOf="@+id/tx_tache_projet_id"
+        android:text="Test"
+        android:gravity="center"
+        android:textAppearance="?android:textAppearanceLarge"/>
+
+    <TextView
+        android:layout_width="120dp"
+        android:layout_height="match_parent"
+        android:id="@+id/tx_projet_etat"
+        android:layout_toRightOf="@+id/tx_projet_nom"
+        android:text="Test"
+        android:gravity="center"
+        android:textAppearance="?android:textAppearanceLarge"/>
+
+</RelativeLayout>

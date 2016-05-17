@@ -9,6 +9,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.DataSetObserver;
 import android.graphics.Color;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 
@@ -35,6 +37,17 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -54,7 +67,14 @@ public class MainActivity extends AppCompatActivity {
     private ListView lstLate;
     private ListView lstToday;
 
+    String jsonString;
+
     private ArrayList<Projet> projets = new ArrayList<>();
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,13 +127,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //S'occupe de chaque row du spinner
+        //Sync'occupe de chaque row du spinner
         SpinAdapter adapter = new SpinAdapter(getApplicationContext(), android.R.layout.simple_spinner_item, projets);
 
         //met un forme au spinner
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
-        updateListesTaches((Projet) spinner.getSelectedItem());
+        //updateListesTaches((Projet) spinner.getSelectedItem());
 
         //ajouter les valeurs dans l'adapter
         TaskAdapter adaptLate = new TaskAdapter(late);
@@ -144,13 +164,16 @@ public class MainActivity extends AppCompatActivity {
                 info.show();
             }
         });
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch(requestCode) {
-            case (60) : {
+        switch (requestCode) {
+            case (60): {
                 if (resultCode == Activity.RESULT_OK) {
                     int updatedRows = data.getIntExtra("nbUpdatedRows", 0);
                     if (updatedRows > 0) {
@@ -167,8 +190,7 @@ public class MainActivity extends AppCompatActivity {
                         lstLate.setAdapter(adaptLate);
                         TaskAdapter adaptToday = new TaskAdapter(today);
                         lstToday.setAdapter(adaptToday);
-                    }
-                    else {
+                    } else {
                         Toast.makeText(getApplicationContext(), R.string.update_tache_error, Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -177,29 +199,71 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Main Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app deep link URI is correct.
+                Uri.parse("android-app://com.example.manchotstudios.com.spring/http/host/path")
+        );
+        AppIndex.AppIndexApi.start(client, viewAction);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Main Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app deep link URI is correct.
+                Uri.parse("android-app://com.example.manchotstudios.com.spring/http/host/path")
+        );
+        AppIndex.AppIndexApi.end(client, viewAction);
+        client.disconnect();
+    }
 
 
-    class TaskAdapter extends ArrayAdapter<Tache>{
+    class TaskAdapter extends ArrayAdapter<Tache> {
         /**
          * Constructeur de TaskAdaptertest
          */
-        TaskAdapter(ArrayList<Tache> task){super(MainActivity.this, R.layout.row,task);}
+        TaskAdapter(ArrayList<Tache> task) {
+            super(MainActivity.this, R.layout.row, task);
+        }
 
         /**
          * obtient la vue en cours
-         * @param pos la position de la vue
+         *
+         * @param pos         la position de la vue
          * @param convertView la view
-         * @param parent le parent (Dans notre cas la listView)
+         * @param parent      le parent (Dans notre cas la listView)
          * @return la vue en cours
          */
-        public View getView(int pos, View convertView, ViewGroup parent){
+        public View getView(int pos, View convertView, ViewGroup parent) {
             TaskWrapper wrapper;
 
-            if (convertView == null){
+            if (convertView == null) {
                 convertView = getLayoutInflater().inflate(R.layout.row, parent, false);
                 wrapper = new TaskWrapper(convertView);
                 convertView.setTag(wrapper);
-            }else{
+            } else {
                 wrapper = (TaskWrapper) convertView.getTag();
             }
             wrapper.setTask(getItem(pos));
@@ -207,22 +271,26 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    class TaskWrapper{
+    class TaskWrapper {
         private TextView title = null;
         private View row = null;
 
         /**
          * Constructeur
+         *
          * @param row le layout de rangée
          */
-        TaskWrapper(View row){this.row = row;}
+        TaskWrapper(View row) {
+            this.row = row;
+        }
 
         /**
          * Obtient la Textview de titre
+         *
          * @return la Textview de titre
          */
-        public TextView getTitle(){
-            if(title == null){
+        public TextView getTitle() {
+            if (title == null) {
                 title = (TextView) row.findViewById(R.id.lblTask);
             }
             return title;
@@ -230,9 +298,10 @@ public class MainActivity extends AppCompatActivity {
 
         /**
          * Met les valeur de l'objet task dans la rangée
+         *
          * @param t la tâche à insérer
          */
-        public void setTask(Tache t){
+        public void setTask(Tache t) {
             getTitle().setText(t.getNom());
         }
     }
@@ -252,15 +321,15 @@ public class MainActivity extends AppCompatActivity {
             this.values = values;
         }
 
-        public int getCount(){
+        public int getCount() {
             return values.size();
         }
 
-        public Projet getItem(int position){
+        public Projet getItem(int position) {
             return values.get(position);
         }
 
-        public long getItemId(int position){
+        public long getItemId(int position) {
             return position;
         }
 
@@ -301,8 +370,7 @@ public class MainActivity extends AppCompatActivity {
         for (Tache t : taches) {
             if (todayDate.after(t.getDateDebutPrevue()) && t.getDateFinReelle() == null) {
                 late.add(t);
-            }
-            else if (todayDate == t.getDateDebutPrevue() && t.getDateFinReelle() == null) {
+            } else if (todayDate == t.getDateDebutPrevue() && t.getDateFinReelle() == null) {
                 today.add(t);
             }
         }
@@ -323,15 +391,76 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
 
-        if(id == R.id.synchronisation){
+        if (id == R.id.synchronisation) {
             return true;
         }
 
-        if(id == R.id.deconnecxion){
+        if (id == R.id.deconnecxion) {
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    String json_string;
+
+    public void getJson(View view) {
+        new BackgroundTask().execute();
+    }
+
+    class BackgroundTask extends AsyncTask<Void, Void, String>{
+
+        String json_url;
+        @Override
+        protected void onPreExecute(){
+           json_url = "http://aacspring.xyz/gestionnaire/gestionnaire_android.php";
+        }
+
+        @Override
+        protected String doInBackground(Void... voids){
+            try {
+                URL url = new URL(json_url);
+                HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
+                InputStream inputStream = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                StringBuilder stringBuilder = new StringBuilder();
+                while ((json_string = bufferedReader.readLine()) != null){
+                    stringBuilder.append(json_string + "\n");
+                }
+                bufferedReader.close();
+                inputStream.close();
+                httpURLConnection.disconnect();
+                return stringBuilder.toString().trim();
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values){
+            super.onProgressUpdate(values);
+        }
+
+        @Override
+        protected void onPostExecute(String result){
+            TextView textView = (TextView)findViewById(R.id.textview);
+            textView.setText(result);
+            jsonString = result;
+        }
+    }
+
+    public void parseJSON(View view){
+        if(jsonString == null){
+            Toast.makeText(getApplicationContext(),"Il faut faire un get en premier",Toast.LENGTH_LONG).show();
+        }
+        else{
+            Intent intent = new Intent(this,DisplayListView.class);
+            intent.putExtra("jason_data",jsonString);
+            startActivity(intent);
+        }
+    }
 }

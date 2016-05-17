@@ -48,7 +48,7 @@ public class DBHandler extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + ProjetQueryHandler.PROJET_TABLE_NAME);
         onCreate(db);
 
-        //S'il y a eu des changements dans la BD PHP, faire un sync pour retrouver les nouvelles tâches
+        //Sync'il y a eu des changements dans la BD PHP, faire un Sync pour retrouver les nouvelles tâches
 
     }
 
