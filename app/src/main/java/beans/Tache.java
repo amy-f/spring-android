@@ -257,7 +257,7 @@ public class Tache implements Parcelable{
         dest.writeInt(projetID);
     }
 
-    private String convertDateToString(Date date) {
+    public String convertDateToString(Date date) {
         DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         if (date == null) {
             return "";
@@ -267,7 +267,7 @@ public class Tache implements Parcelable{
         }
     }
 
-    private Date convertStringToDate(String str) {
+    public Date convertStringToDate(String str) {
         DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         if (str.equals("")) {
             return null;

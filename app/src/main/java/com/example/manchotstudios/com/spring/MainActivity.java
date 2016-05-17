@@ -53,6 +53,7 @@ import java.util.Date;
 
 import beans.Projet;
 import beans.Tache;
+import dbaccess.Sync;
 import handlers.ProjetHandler;
 import handlers.TacheHandler;
 
@@ -68,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
     private ListView lstToday;
 
     String jsonString;
+    Sync sync;
 
     private ArrayList<Projet> projets = new ArrayList<>();
     /**
@@ -83,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        sync = new Sync();
 
         //Va chercher les handlers
         ProjetHandler projetHandler = new ProjetHandler(getApplicationContext());
@@ -386,13 +389,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
+        // automatically handle clicks on the Home/Up f, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
 
         if (id == R.id.synchronisation) {
-            return true;
+            new BackgroundTask().execute();
         }
 
         if (id == R.id.deconnecxion) {
@@ -449,18 +452,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(String result){
             TextView textView = (TextView)findViewById(R.id.textview);
             textView.setText(result);
-            jsonString = result;
-        }
-    }
-
-    public void parseJSON(View view){
-        if(jsonString == null){
-            Toast.makeText(getApplicationContext(),"Il faut faire un get en premier",Toast.LENGTH_LONG).show();
-        }
-        else{
-            Intent intent = new Intent(this,DisplayListView.class);
-            intent.putExtra("jason_data",jsonString);
-            startActivity(intent);
+            sync.init(result);
         }
     }
 }
