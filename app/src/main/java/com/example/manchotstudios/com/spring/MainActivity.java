@@ -7,29 +7,19 @@ import android.content.Context;
 import android.content.DialogInterface;
 
 import android.content.Intent;
-import android.database.DataSetObserver;
-import android.graphics.Color;
-import android.os.Bundle;
-import android.os.Parcelable;
-
 import android.content.SharedPreferences;
-import android.database.DataSetObserver;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -53,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
     private Spinner spinner;
     private ListView lstLate;
     private ListView lstToday;
+    private TextView txtHelloMessage;
+    private SharedPreferences prefs;
 
     private ArrayList<Projet> projets = new ArrayList<>();
 
@@ -62,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
 
         //Va chercher les handlers
         ProjetHandler projetHandler = new ProjetHandler(getApplicationContext());
@@ -88,6 +79,11 @@ public class MainActivity extends AppCompatActivity {
         spinner = (Spinner) findViewById(R.id.spin);
         lstLate = (ListView) findViewById(R.id.lstLate);
         lstToday = (ListView) findViewById(R.id.lstToday);
+        txtHelloMessage = (TextView) findViewById(R.id.txtHelloMessage);
+
+        //Change le message de bienvenue selon l'utilisateur présentement connecté
+        prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        txtHelloMessage.setText("Bonjour " + prefs.getString("utilisateur_nom", "Utilisateur") + "!");
 
         //Gère le listener du spinner
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -95,9 +91,9 @@ public class MainActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 updateListesTaches((Projet) spinner.getSelectedItem());
                 //ajouter les valeurs dans l'adapter
-                TaskAdapter adaptLate = new TaskAdapter(late);
+                TacheAdapter adaptLate = new TacheAdapter(late);
                 lstLate.setAdapter(adaptLate);
-                TaskAdapter adaptToday = new TaskAdapter(today);
+                TacheAdapter adaptToday = new TacheAdapter(today);
                 lstToday.setAdapter(adaptToday);
             }
 
@@ -116,10 +112,10 @@ public class MainActivity extends AppCompatActivity {
         updateListesTaches((Projet) spinner.getSelectedItem());
 
         //ajouter les valeurs dans l'adapter
-        TaskAdapter adaptLate = new TaskAdapter(late);
+        TacheAdapter adaptLate = new TacheAdapter(late);
         lstLate.setAdapter(adaptLate);
 
-        TaskAdapter adaptToday = new TaskAdapter(today);
+        TacheAdapter adaptToday = new TacheAdapter(today);
         lstToday.setAdapter(adaptToday);
 
         lstLate.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -163,9 +159,9 @@ public class MainActivity extends AppCompatActivity {
                             p.setTaches(taches);
                         }
                         updateListesTaches((Projet) spinner.getSelectedItem());
-                        TaskAdapter adaptLate = new TaskAdapter(late);
+                        TacheAdapter adaptLate = new TacheAdapter(late);
                         lstLate.setAdapter(adaptLate);
-                        TaskAdapter adaptToday = new TaskAdapter(today);
+                        TacheAdapter adaptToday = new TacheAdapter(today);
                         lstToday.setAdapter(adaptToday);
                     }
                     else {
@@ -179,11 +175,11 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    class TaskAdapter extends ArrayAdapter<Tache>{
+    class TacheAdapter extends ArrayAdapter<Tache>{
         /**
          * Constructeur de TaskAdaptertest
          */
-        TaskAdapter(ArrayList<Tache> task){super(MainActivity.this, R.layout.row,task);}
+        TacheAdapter(ArrayList<Tache> task){super(MainActivity.this, R.layout.row,task);}
 
         /**
          * obtient la vue en cours
@@ -193,21 +189,21 @@ public class MainActivity extends AppCompatActivity {
          * @return la vue en cours
          */
         public View getView(int pos, View convertView, ViewGroup parent){
-            TaskWrapper wrapper;
+            TacheWrapper wrapper;
 
             if (convertView == null){
                 convertView = getLayoutInflater().inflate(R.layout.row, parent, false);
-                wrapper = new TaskWrapper(convertView);
+                wrapper = new TacheWrapper(convertView);
                 convertView.setTag(wrapper);
             }else{
-                wrapper = (TaskWrapper) convertView.getTag();
+                wrapper = (TacheWrapper) convertView.getTag();
             }
             wrapper.setTask(getItem(pos));
             return convertView;
         }
     }
 
-    class TaskWrapper{
+    class TacheWrapper {
         private TextView title = null;
         private View row = null;
 
@@ -215,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
          * Constructeur
          * @param row le layout de rangée
          */
-        TaskWrapper(View row){this.row = row;}
+        TacheWrapper(View row){this.row = row;}
 
         /**
          * Obtient la Textview de titre
@@ -241,9 +237,7 @@ public class MainActivity extends AppCompatActivity {
     //Adapter pour le projet
     class SpinAdapter extends ArrayAdapter<Projet> {
 
-        // Your sent context
         private Context context;
-        // Your custom values for the spinner (User)
         private ArrayList<Projet> values;
 
         public SpinAdapter(Context context, int textViewResourceId, ArrayList<Projet> values) {
@@ -252,36 +246,18 @@ public class MainActivity extends AppCompatActivity {
             this.values = values;
         }
 
-        public int getCount(){
-            return values.size();
-        }
-
-        public Projet getItem(int position){
-            return values.get(position);
-        }
-
-        public long getItemId(int position){
-            return position;
-        }
-
-
-        // And the "magic" goes here
-        // This is for the "passive" state of the spinner
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            // I created a dynamic TextView here, but you can reference your own  custom layout for each spinner item
+            //Création d'un TextView dynamique pour la valeur du spinner
             TextView label = new TextView(context);
             label.setTextColor(Color.WHITE);
-            // Then you can get the current item using the values array (Users array) and the current position
-            // You can NOW reference each method you has created in your bean object (User class)
             label.setText(values.get(position).getNom());
 
             // And finally return your dynamic (or custom) view for each spinner item
             return label;
         }
 
-        // And here is when the "chooser" is popped up
-        // Normally is the same view, but you can customize it if you want
+        //Gère la vue du menu déroulant lorsqu'il est déroulé
         @Override
         public View getDropDownView(int position, View convertView,
                                     ViewGroup parent) {
