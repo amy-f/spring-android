@@ -35,7 +35,7 @@ public class TacheQueryHandler {
     public static final String TACHE_TABLE_NAME = "tache";
 
     private static final String TACHE_INSERT = "INSERT INTO " + TACHE_TABLE_NAME
-            + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     private static final String TACHE_SELECT_FROM_PROJET_ID = "SELECT * FROM " + TACHE_TABLE_NAME
             + " WHERE " + ProjetQueryHandler.PROJET_ID + " = ?";
@@ -52,31 +52,31 @@ public class TacheQueryHandler {
         stmt.bindString(2, t.getNom());
         stmt.bindString(3, t.getDescription());
         stmt.bindString(4, t.getAdresse());
-        stmt.bindDouble(5, t.getLongitude());
-        stmt.bindDouble(6, t.getLatitude());
-        stmt.bindString(7, df.format(t.getDateDebutPrevue()));
+        stmt.bindDouble(7, t.getLongitude());
+        stmt.bindDouble(8, t.getLatitude());
+        stmt.bindString(9, df.format(t.getDateDebutPrevue()));
         if (t.getDateDebutReelle() == null) {
-            stmt.bindString(8, "");
-        }
-        else {
-            stmt.bindString(8, df.format(t.getDateDebutReelle()));
-        }
-        stmt.bindString(9, df.format(t.getDateFinPrevue()));
-        if (t.getDateFinReelle() == null) {
             stmt.bindString(10, "");
         }
         else {
-            stmt.bindString(10, df.format(t.getDateFinReelle()));
+            stmt.bindString(10, df.format(t.getDateDebutReelle()));
         }
-        if (t.getCommentaire() == null) {
-            stmt.bindString(11, "");
+        stmt.bindString(11, df.format(t.getDateFinPrevue()));
+        if (t.getDateFinReelle() == null) {
+            stmt.bindString(12, "");
         }
         else {
-            stmt.bindString(11, df.format(t.getDateFinReelle()));
+            stmt.bindString(12, df.format(t.getDateFinReelle()));
         }
-        stmt.bindLong(12, t.getEtat());
-        stmt.bindDouble(13, t.getProgression());
-        stmt.bindLong(14, t.getProjetID());
+        if (t.getCommentaire() == null) {
+            stmt.bindString(13, "");
+        }
+        else {
+            stmt.bindString(13, t.getCommentaire());
+        }
+        stmt.bindLong(14, t.getEtat());
+        stmt.bindDouble(15, t.getProgression());
+        stmt.bindLong(16, t.getProjetID());
         stmt.execute();
     }
 
@@ -92,8 +92,8 @@ public class TacheQueryHandler {
                 String name = cursor.getString(cursor.getColumnIndex(TACHE_NOM));
                 String desc = cursor.getString(cursor.getColumnIndex(TACHE_DESCRIPTION));
                 String address = cursor.getString(cursor.getColumnIndex(TACHE_ADRESSE));
-                //String zipCode = cursor.getString(cursor.getColumnIndex(TACHE_CODEPOSTAL));
-                //String city = cursor.getString(cursor.getColumnIndex(TACHE_VILLE));
+                String zipCode = cursor.getString(cursor.getColumnIndex(TACHE_CODEPOSTAL));
+                String city = cursor.getString(cursor.getColumnIndex(TACHE_VILLE));
                 double longitude = cursor.getDouble(cursor.getColumnIndex(TACHE_LONGITUDE));
                 double latitude = cursor.getDouble(cursor.getColumnIndex(TACHE_LATITUDE));
                 Date[] dates = convertDates(cursor);
@@ -104,8 +104,8 @@ public class TacheQueryHandler {
                 String commentaire = cursor.getString(cursor.getColumnIndex(TACHE_COMMENTAIRE));
                 int state = cursor.getInt(cursor.getColumnIndex(TACHE_ETAT));
                 float progression = cursor.getFloat(cursor.getColumnIndex(TACHE_PROGRESSION));
-                Tache t = new Tache(id, name, desc, address, longitude, latitude, debutPrevu, debutReel, finPrevu, finReel, commentaire, state, progression, projetID);
-                //Tache t = new Tache(id, name, desc, address, zipCode, city, longitude, latitude, debutPrevu, debutReel, finPrevu, finReel, commentaire, state, progression, projetID);
+                //Tache t = new Tache(id, name, desc, address, longitude, latitude, debutPrevu, debutReel, finPrevu, finReel, commentaire, state, progression, projetID);
+                Tache t = new Tache(id, name, desc, address, zipCode, city, longitude, latitude, debutPrevu, debutReel, finPrevu, finReel, commentaire, state, progression, projetID);
                 taches.add(t);
             } while (cursor.moveToNext());
         }

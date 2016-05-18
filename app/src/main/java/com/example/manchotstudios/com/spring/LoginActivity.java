@@ -1,5 +1,6 @@
 package com.example.manchotstudios.com.spring;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -40,12 +41,23 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), R.string.login_edittext_error, Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    //Do connection check
+                    int oldPrefsID = prefs.getInt("utilisateur_id", 0);
+                    boolean oldFirstUseValue = prefs.getBoolean("firstUse", false);
                     if (validateLogin()) {
+
                         //Change les préférences et renvoie à la MainActivity
                         prefs.edit().putBoolean("isLoggedIn", true).apply();
-                        Intent myIntent = new Intent(getApplicationContext(), MainActivity.class);
-                        startActivity(myIntent);
+
+                        //Si même utilisateur que la dernière fois qu'il se logue, ne change rien, autrement
+                        //il va chercher les infos liées à cet utilisateur
+                        if (prefs.getInt("utilisateur_id", 0) != oldPrefsID || prefs.getBoolean("firstUse", true)) {
+                            //drop tables and sync
+                            prefs.edit().putBoolean("firstUse", false);
+                        }
+                        Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
+                        resultIntent.putExtra("oldFirstUseValue", oldFirstUseValue);
+                        setResult(Activity.RESULT_OK, resultIntent);
+                        finish();
                     }
                     else {
                         Toast.makeText(getApplicationContext(), R.string.login_authentification_error, Toast.LENGTH_LONG).show();
@@ -78,6 +90,7 @@ public class LoginActivity extends AppCompatActivity {
         //Autrement, retourne faux
         if (username.equals(dummyUsername) && password.equals(dummyPassword)) {
             prefs.edit().putString("utilisateur_nom", "Admin");
+            prefs.edit().putInt("utilisateur_id", 1);
             return true;
         }
         else {
