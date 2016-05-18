@@ -81,32 +81,6 @@
         android:textSize="30sp"
         android:layout_margin="20dp"/>
 
-   <Button
-        android:layout_width="250dp"
-        android:layout_height="wrap_content"
-        android:text="Get JSON"
-        android:onClick="getJson"
-        android:layout_gravity="center_horizontal"
-        android:id="@+id/b1" />
-    <Button
-        android:layout_width="250dp"
-        android:layout_height="wrap_content"
-        android:text="parse Json"
-        android:layout_gravity="center_horizontal"
-        android:onClick="parseJSON"
-        android:id="@+id/b2"
-        android:layout_marginTop="20dp"/>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="JSON Appear here"
-        android:gravity="center"
-        android:layout_marginTop="20dp"
-        android:textColor="#fff"
-        android:id="@+id/textview" />
-
     <ListView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

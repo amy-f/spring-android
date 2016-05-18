@@ -40,12 +40,15 @@ public class TacheQueryHandler {
     private static final String TACHE_SELECT_FROM_PROJET_ID = "SELECT * FROM " + TACHE_TABLE_NAME
             + " WHERE " + ProjetQueryHandler.PROJET_ID + " = ?";
 
+    private static final String TACHE_SELECT_FROM_TACHE_ID = "SELECT * FROM " + TACHE_TABLE_NAME
+            + " WHERE " + TACHE_ID + " = ?";
+
     private static final String TACHE_UPDATE_FROM_TACHE_ID = "UPDATE " + TACHE_TABLE_NAME +
             " SET " + TACHE_DEBUT_REEL + " = ?, " + TACHE_FIN_REEL + " = ?, " + TACHE_COMMENTAIRE + " = ?, "
             + TACHE_PROGRESSION + " = ? WHERE " + TACHE_ID + " = ?";
 
     public void insertTache(SQLiteDatabase db, Tache t) {
-        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         SQLiteStatement stmt = db.compileStatement(TACHE_INSERT);
         stmt.bindLong(1, t.getId());
@@ -70,16 +73,24 @@ public class TacheQueryHandler {
         else {
             stmt.bindString(12, df.format(t.getDateFinReelle()));
         }
-        if (t.getCommentaire() == null) {
+        if (t.getCommentaire() == "null") {
             stmt.bindString(13, "");
         }
         else {
-            stmt.bindString(13, df.format(t.getDateFinReelle()));
+            stmt.bindString(13, t.getCommentaire());
         }
         stmt.bindLong(14, t.getEtat());
         stmt.bindDouble(15, t.getProgression());
         stmt.bindLong(16, t.getProjetID());
         stmt.execute();
+    }
+
+    public boolean tacheExiste(SQLiteDatabase mDB, int tacheID) {
+        String[] valeur = {String.valueOf(tacheID)};
+        Cursor cursor = mDB.rawQuery(TACHE_SELECT_FROM_TACHE_ID, valeur);
+        boolean existe = cursor.moveToFirst();
+        cursor.close();
+        return existe;
     }
 
    public ArrayList<Tache> selectTacheFromProjetID(SQLiteDatabase mDB, int projetID) {
@@ -138,7 +149,7 @@ public class TacheQueryHandler {
     }
 
     private String convertDateToString(Date date) {
-        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         if (date == null) {
             return "";
         }
@@ -148,7 +159,7 @@ public class TacheQueryHandler {
     }
 
     private Date convertStringToDate(String str) {
-        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         if (str.equals("")) {
             return null;
         }
@@ -167,7 +178,7 @@ public class TacheQueryHandler {
 
     private Date[] convertDates(Cursor cursor) {
         Date[] dates = new Date[4];
-        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         if (cursor.getString(cursor.getColumnIndex(TACHE_DEBUT_PREVU)).equals("")) {
             dates[0] = null;

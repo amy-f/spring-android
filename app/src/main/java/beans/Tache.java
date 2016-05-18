@@ -3,6 +3,9 @@ package beans;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -258,7 +261,7 @@ public class Tache implements Parcelable{
     }
 
     public String convertDateToString(Date date) {
-        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         if (date == null) {
             return "";
         }
@@ -268,9 +271,9 @@ public class Tache implements Parcelable{
     }
 
     public Date convertStringToDate(String str) {
-        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        if (str.equals("")) {
-            return null;
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        if (str.equals("null")) {
+            return  null;
         }
         else {
             Date d;
@@ -283,5 +286,22 @@ public class Tache implements Parcelable{
                 return null;
             }
         }
+    }
+
+    public JSONObject getJSONObject() throws JSONException{
+        JSONObject tache = new JSONObject();
+        JSONObject data = new JSONObject();
+        try {
+            data.put("id", id);
+            data.put("debut", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dateDebutReelle).toString());
+            data.put("fin", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(dateFinReelle).toString());
+            data.put("progression", progression);
+            data.put("commentaire", commentaire);
+            tache.put("tache",data);
+            return data;
+        } catch (JSONException e) {
+            throw e;
+        }
+
     }
 }

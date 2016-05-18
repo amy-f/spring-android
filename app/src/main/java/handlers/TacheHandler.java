@@ -24,7 +24,11 @@ public class TacheHandler {
 
     public void insertTache(Tache t) {
         SQLiteDatabase writableDB = db.getWritableDatabase();
-        dbQuery.insertTache(writableDB, t);
+        if(!dbQuery.tacheExiste(writableDB, t.getId())){
+            dbQuery.insertTache(writableDB, t);
+        }else{
+            dbQuery.updateTache(writableDB, t);
+        }
     }
 
     public ArrayList<Tache> selectTacheFromProjetID(int projetID) {

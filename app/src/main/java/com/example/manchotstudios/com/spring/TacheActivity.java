@@ -3,6 +3,7 @@ package com.example.manchotstudios.com.spring;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -20,10 +21,13 @@ import org.w3c.dom.Text;
 import java.util.Date;
 
 import beans.Tache;
+import dbaccess.Sync;
 import handlers.TacheHandler;
 
 public class TacheActivity extends AppCompatActivity {
 
+
+    Sync sync;
     Tache maTache;
     TacheHandler maTacheHandler;
 
@@ -32,6 +36,7 @@ public class TacheActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tache);
 
+        sync = new Sync(this);
         //Prend les données de la tâche passée en paramètre
         maTache = getIntent().getExtras().getParcelable("tache");
         maTacheHandler = new TacheHandler(getApplicationContext());
@@ -107,6 +112,42 @@ public class TacheActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    class BackgroundTask extends AsyncTask<Void, Void, String> {
+
+        String json_url;
+        @Override
+        protected void onPreExecute(){
+            json_url = "http://aacspring.xyz/controllers/ctrl_android.php";
+        }
+
+        @Override
+        protected String doInBackground(Void... voids){
+            String json;
+            try{
+                json = maTache.getJSONObject().toString();
+            }catch(Exception e){
+                e.printStackTrace();
+                json = null;
+            }
+            return json;
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values){
+            super.onProgressUpdate(values);
+        }
+
+        @Override
+        protected void onPostExecute(String result){
+
+            try{
+                sync.sendValue(json_url, "updateTache",result);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
     }
 
 }

@@ -24,7 +24,12 @@ public class ProjetHandler {
 
     public void insertProjet(Projet p) {
         SQLiteDatabase writableDB = db.getWritableDatabase();
-        dbQuery.insertProjet(writableDB, p);
+
+        if(!dbQuery.projetExiste(writableDB, p.getId())){
+            dbQuery.insertProjet(writableDB, p);
+        }else{
+            dbQuery.updateProjet(writableDB, p);
+        }
     }
 
     public ArrayList<Projet> selectAllProjet() {

@@ -19,7 +19,10 @@ public class ProjetQueryHandler{
     public static final String PROJET_TABLE_NAME = "projet";
     private static final String PROJET_INSERT = "INSERT INTO " + PROJET_TABLE_NAME +
             " VALUES (?, ?, ?)";
-    private static final String PROJET_SELECT_ALL = "SELECT * FROM PROJET";
+    private static final String PROJET_UPDATE = "UPDATE " + PROJET_TABLE_NAME +
+            " SET projet_nom = ?, projet_etat = ? WHERE projet_id = ?";
+    private static final String PROJET_SELECT_ALL = "SELECT * FROM projet";
+    private static final String SELECT_PROJET_ID = "SELECT * FROM projet WHERE projet_id = ?";
 
     public void insertProjet(SQLiteDatabase db, Projet p) {
         SQLiteStatement stmt = db.compileStatement(PROJET_INSERT);
@@ -27,10 +30,15 @@ public class ProjetQueryHandler{
         stmt.bindString(2, p.getNom());
         stmt.bindLong(3, p.getEtat());
         stmt.execute();
+
     }
 
-    public void updateProjet(Projet p) {
-
+    public void updateProjet(SQLiteDatabase db,Projet p) {
+        SQLiteStatement stmt = db.compileStatement(PROJET_UPDATE);
+        stmt.bindString(1,p.getNom());
+        stmt.bindLong(2, p.getEtat());
+        stmt.bindLong(3,p.getId());
+        stmt.execute();
     }
 
     public void deleteProjet(Projet p) {
@@ -47,9 +55,12 @@ public class ProjetQueryHandler{
         return projets;
     }
 
-    public ResultSet selectProjetResultSetFromProjetID(int projetID) {
-        ResultSet rs = null;
-        return rs;
+    public boolean projetExiste(SQLiteDatabase mDB, int projetID) {
+        String[] valeur = {String.valueOf(projetID)};
+        Cursor cursor = mDB.rawQuery(SELECT_PROJET_ID, valeur);
+        boolean existe = cursor.moveToFirst();
+        cursor.close();
+        return existe;
     }
 
     public Projet selectProjetFromID(int projetID) {

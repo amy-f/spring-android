@@ -7,31 +7,19 @@ import android.content.Context;
 import android.content.DialogInterface;
 
 import android.content.Intent;
-import android.database.DataSetObserver;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
 
-import android.content.SharedPreferences;
-import android.database.DataSetObserver;
-import android.graphics.Color;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
-
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -40,6 +28,8 @@ import android.widget.Toast;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
+
+import org.json.JSONArray;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -85,32 +75,14 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        sync = new Sync();
-
-        //Va chercher les handlers
-        ProjetHandler projetHandler = new ProjetHandler(getApplicationContext());
-        tacheHandler = new TacheHandler(getApplicationContext());
-        late = new ArrayList<>();
-        today = new ArrayList<>();
-
-        //Va chercher les informations dans la base de données et les insère dans le spinner
-        ArrayList<Projet> projetsData = projetHandler.selectAllProjet();
-
-        //Met les projets associés dans le spinner
-        for (Projet projet : projetsData) {
-            projets.add(projet);
-        }
-
-        //Sélectionne les taches associées à chaque projet et les met dans la liste de taches du projet
-        for (Projet p : projets) {
-            ArrayList<Tache> taches = tacheHandler.selectTacheFromProjetID(p.getId());
-            p.setTaches(taches);
-        }
+        sync = new Sync(this);
 
         //Retrouve les élémnents dont on a besoin
         spinner = (Spinner) findViewById(R.id.spin);
         lstLate = (ListView) findViewById(R.id.lstLate);
         lstToday = (ListView) findViewById(R.id.lstToday);
+
+        new BackgroundTask().execute();
 
         //Gère le listener du spinner
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -130,20 +102,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //Sync'occupe de chaque row du spinner
-        SpinAdapter adapter = new SpinAdapter(getApplicationContext(), android.R.layout.simple_spinner_item, projets);
-
-        //met un forme au spinner
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-        //updateListesTaches((Projet) spinner.getSelectedItem());
-
-        //ajouter les valeurs dans l'adapter
-        TaskAdapter adaptLate = new TaskAdapter(late);
-        lstLate.setAdapter(adaptLate);
-
-        TaskAdapter adaptToday = new TaskAdapter(today);
-        lstToday.setAdapter(adaptToday);
 
         lstLate.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -413,34 +371,15 @@ public class MainActivity extends AppCompatActivity {
 
     class BackgroundTask extends AsyncTask<Void, Void, String>{
 
-        String json_url;
+       String json_url;
         @Override
         protected void onPreExecute(){
-           json_url = "http://aacspring.xyz/gestionnaire/gestionnaire_android.php";
+           json_url = "http://aacspring.xyz/controllers/ctrl_android.php?getProjet=2";
         }
 
         @Override
         protected String doInBackground(Void... voids){
-            try {
-                URL url = new URL(json_url);
-                HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
-                InputStream inputStream = httpURLConnection.getInputStream();
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                StringBuilder stringBuilder = new StringBuilder();
-                while ((json_string = bufferedReader.readLine()) != null){
-                    stringBuilder.append(json_string + "\n");
-                }
-                bufferedReader.close();
-                inputStream.close();
-                httpURLConnection.disconnect();
-                return stringBuilder.toString().trim();
-
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
+            return sync.getJsonFromWeb(json_url);
         }
 
         @Override
@@ -450,9 +389,51 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String result){
-            TextView textView = (TextView)findViewById(R.id.textview);
-            textView.setText(result);
-            sync.init(result);
+
+            try{
+                sync.syncTask(result);
+                populate();
+
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
+    }
+
+    private void populate(){
+
+        ProjetHandler projetHandler = new ProjetHandler(getApplicationContext());
+        tacheHandler = new TacheHandler(getApplicationContext());
+        late = new ArrayList<>();
+        today = new ArrayList<>();
+
+        //Va chercher les informations dans la base de données et les insère dans le spinner
+        ArrayList<Projet> projetsData = projetHandler.selectAllProjet();
+
+        //Met les projets associés dans le spinner
+        if(!projets.isEmpty()) projets.removeAll(projets);
+        for (Projet projet : projetsData) {
+            projets.add(projet);
+        }
+
+        //Sélectionne les taches associées à chaque projet et les met dans la liste de taches du projet
+
+        for (Projet p : projets) {
+            ArrayList<Tache> taches = tacheHandler.selectTacheFromProjetID(p.getId());
+            p.setTaches(taches);
+        }
+
+        //Sync'occupe de chaque row du spinner
+        SpinAdapter adapter = new SpinAdapter(getApplicationContext(), android.R.layout.simple_spinner_item, projets);
+
+        //met un forme au spinner
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        updateListesTaches((Projet) spinner.getSelectedItem());
+
+        TaskAdapter adaptToday = new TaskAdapter(today);
+        lstToday.setAdapter(adaptToday);
+
+        Toast.makeText(getApplicationContext(), "Synchronisation effectuée avec succès!", Toast.LENGTH_SHORT).show();
     }
 }
