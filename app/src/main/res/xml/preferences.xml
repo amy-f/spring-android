@@ -6,4 +6,12 @@
     <EditTextPreference android:title="Prénom de l'utilisateur"
         android:key="utilisateur_nom"
         android:summary="Entrez votre prénom"></EditTextPreference>
+    <CheckBoxPreference
+        android:title="L'utilisateur est connecté"
+        android:defaultValue="false"
+        android:key="isLoggedIn" ></CheckBoxPreference>
+    <CheckBoxPreference
+        android:title="L'utilisateur en est à sa première utilisation"
+        android:defaultValue="true"
+        android:key="firstUse" ></CheckBoxPreference>
 </PreferenceScreen>

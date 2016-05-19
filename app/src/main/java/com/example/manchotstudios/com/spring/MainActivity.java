@@ -7,11 +7,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -52,11 +54,14 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<Tache> late;
     private ArrayList<Tache> today;
+    private ProjetHandler projetHandler;
     private TacheHandler tacheHandler;
 
     private Spinner spinner;
     private ListView lstLate;
     private ListView lstToday;
+    private TextView txtHelloMessage;
+    private SharedPreferences prefs;
 
     String jsonString;
     Sync sync;
@@ -77,12 +82,15 @@ public class MainActivity extends AppCompatActivity {
 
         sync = new Sync(this);
 
-        //Retrouve les élémnents dont on a besoin
+		//Initialise les variables du projet
+        projetHandler = new ProjetHandler(getApplicationContext());
+        tacheHandler = new TacheHandler(getApplicationContext());
+        late = new ArrayList<>();
+        today = new ArrayList<>();
         spinner = (Spinner) findViewById(R.id.spin);
         lstLate = (ListView) findViewById(R.id.lstLate);
         lstToday = (ListView) findViewById(R.id.lstToday);
-
-        new BackgroundTask().execute();
+        txtHelloMessage = (TextView) findViewById(R.id.txtHelloMessage);
 
         //Gère le listener du spinner
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -90,9 +98,9 @@ public class MainActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 updateListesTaches((Projet) spinner.getSelectedItem());
                 //ajouter les valeurs dans l'adapter
-                TaskAdapter adaptLate = new TaskAdapter(late);
+                TacheAdapter adaptLate = new TacheAdapter(late);
                 lstLate.setAdapter(adaptLate);
-                TaskAdapter adaptToday = new TaskAdapter(today);
+                TacheAdapter adaptToday = new TacheAdapter(today);
                 lstToday.setAdapter(adaptToday);
             }
 
@@ -102,6 +110,98 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //S'occupe de chaque row du spinner
+        SpinAdapter adapter = new SpinAdapter(getApplicationContext(), android.R.layout.simple_spinner_item, projets);
+
+        lstLate.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                final Tache t = late.get(position);
+                AlertDialog.Builder info = new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Description de la tâche")
+                        .setMessage(late.get(position).getDescription())
+                        .setPositiveButton("Mettre à jour", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                Intent myIntent = new Intent(((Dialog) dialog).getContext(), TacheActivity.class);
+                                myIntent.putExtra("tache", t);
+                                startActivityForResult(myIntent, 60);   //indique le code à retourner à la fin de l'activité
+                            }
+                        })
+                        .setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+                info.show();
+            }
+        });
+
+        //Vérifie si l'utilisateur est bien connecté et/ou si l'utilisateur ouvre l'app pour la première fois.
+        //Si oui, il renvoie à une page de login
+        prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        if (prefs.getBoolean("firstUse", true) || prefs.getBoolean("isLoggedIn", false) ) {
+            Intent myIntent = new Intent(getApplicationContext(), LoginActivity.class);
+            startActivityForResult(myIntent, 30);
+        }
+    }
+
+    public void initElements() {
+
+        //Va chercher les informations dans la base de données et les insère dans le spinner
+        ArrayList<Projet> projetsData = projetHandler.selectAllProjet();
+
+        //Met les projets associés dans le spinner
+        for (Projet projet : projetsData) {
+            projets.add(projet);
+        }
+
+        //Sélectionne les taches associées à chaque projet et les met dans la liste de taches du projet
+        for (Projet p : projets) {
+            ArrayList<Tache> taches = tacheHandler.selectTacheFromProjetID(p.getId());
+            p.setTaches(taches);
+        }
+
+        //Retrouve les élémnents dont on a besoin
+        spinner = (Spinner) findViewById(R.id.spin);
+        lstLate = (ListView) findViewById(R.id.lstLate);
+        lstToday = (ListView) findViewById(R.id.lstToday);
+        txtHelloMessage = (TextView) findViewById(R.id.txtHelloMessage);
+
+          new BackgroundTask().execute();
+
+		//Change le message de bienvenue selon l'utilisateur présentement connecté
+        txtHelloMessage.setText("Bonjour " + prefs.getString("utilisateur_nom", "Utilisateur") + "!");
+
+        //Gère le listener du spinner
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                updateListesTaches((Projet) spinner.getSelectedItem());
+                //ajouter les valeurs dans l'adapter
+                TacheAdapter adaptLate = new TacheAdapter(late);
+                lstLate.setAdapter(adaptLate);
+                TacheAdapter adaptToday = new TacheAdapter(today);
+                lstToday.setAdapter(adaptToday);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+
+        //met un forme au spinner
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        updateListesTaches((Projet) spinner.getSelectedItem());
+
+        //ajouter les valeurs dans l'adapter
+        TacheAdapter adaptLate = new TacheAdapter(late);
+        lstLate.setAdapter(adaptLate);
+
+        TacheAdapter adaptToday = new TacheAdapter(today);
+        lstToday.setAdapter(adaptToday);
 
         lstLate.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -133,8 +233,39 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case (60): {
+        switch(requestCode) {
+            case (30) : {
+                if (resultCode == Activity.RESULT_OK) {
+                    if (!data.getBooleanExtra("oldFirstUseValue", false)) {
+                        //Insère les données dans le projet (ONE TIME ONLY!)
+                        Projet droidProjet = new Projet(1, "TP Android", 1);
+                        Projet webProjet = new Projet(2, "TP Web PHP", 1);
+                        ArrayList<Tache> droidTaches = new ArrayList<>();
+                        ArrayList<Tache> webTaches = new ArrayList<>();
+                        droidTaches.add(new Tache(1, "Interface Android", "Préparation de l'interface Android", "475 rue du Cégep", "Sherbrooke", "J1K 2Z3",
+                                45.411185, -71.886196, new Date(), null, new Date(), null, null, 1, 0, droidProjet.getId()));
+                        droidTaches.add(new Tache(2, "Base de données", "Préparation et tests de la base de données SQLite", "475 rue du Cégep", "Sherbrooke", "J1K 2Z3",
+                                45.411185, -71.886196, new Date(), null, new Date(), null, null, 1, 0, droidProjet.getId()));
+                        droidTaches.add(new Tache(3, "Synchronisation", "Synchronisation avec la base de données Web", "475 rue du Cégep", "Sherbrooke", "J1K 2Z3",
+                                45.411185, -71.886196, new Date(), null, new Date(), null, null, 1, 0, droidProjet.getId()));
+                        webTaches.add(new Tache(4, "Interface Web", "Préparation de l'interface Web", "475 rue du Cégep","Sherbrooke", "J1K 2Z3",
+                                45.411185, -71.886196, new Date(), null, new Date(), null, null, 1, 0, webProjet.getId()));
+                        webTaches.add(new Tache(5, "Base de données", "Préparation de la base de données mySQL", "475 rue du Cégep", "Sherbrooke", "J1K 2Z3",
+                                45.411185, -71.886196, new Date(), null, new Date(), null, null, 1, 0, webProjet.getId()));
+                        projetHandler.insertProjet(droidProjet);
+                        projetHandler.insertProjet(webProjet);
+                        for (int i = 0; i < droidTaches.size(); i++) {
+                            tacheHandler.insertTache(droidTaches.get(i));
+                        }
+                        for (int i = 0; i < webTaches.size(); i++) {
+                            tacheHandler.insertTache(webTaches.get(i));
+                        }
+                    }
+                    initElements();
+                }
+                break;
+            }
+            case (60) : {
                 if (resultCode == Activity.RESULT_OK) {
                     int updatedRows = data.getIntExtra("nbUpdatedRows", 0);
                     if (updatedRows > 0) {
@@ -147,9 +278,9 @@ public class MainActivity extends AppCompatActivity {
                             p.setTaches(taches);
                         }
                         updateListesTaches((Projet) spinner.getSelectedItem());
-                        TaskAdapter adaptLate = new TaskAdapter(late);
+                        TacheAdapter adaptLate = new TacheAdapter(late);
                         lstLate.setAdapter(adaptLate);
-                        TaskAdapter adaptToday = new TaskAdapter(today);
+                        TacheAdapter adaptToday = new TacheAdapter(today);
                         lstToday.setAdapter(adaptToday);
                     } else {
                         Toast.makeText(getApplicationContext(), R.string.update_tache_error, Toast.LENGTH_SHORT).show();
@@ -180,6 +311,7 @@ public class MainActivity extends AppCompatActivity {
         AppIndex.AppIndexApi.start(client, viewAction);
     }
 
+    class TacheAdapter extends ArrayAdapter<Tache>{
     @Override
     public void onStop() {
         super.onStop();
@@ -218,21 +350,21 @@ public class MainActivity extends AppCompatActivity {
          * @return la vue en cours
          */
         public View getView(int pos, View convertView, ViewGroup parent) {
-            TaskWrapper wrapper;
+            TacheWrapper wrapper;
 
             if (convertView == null) {
                 convertView = getLayoutInflater().inflate(R.layout.row, parent, false);
-                wrapper = new TaskWrapper(convertView);
+                wrapper = new TacheWrapper(convertView);
                 convertView.setTag(wrapper);
             } else {
-                wrapper = (TaskWrapper) convertView.getTag();
+                wrapper = (TacheWrapper) convertView.getTag();
             }
             wrapper.setTask(getItem(pos));
             return convertView;
         }
     }
 
-    class TaskWrapper {
+    class TacheWrapper {
         private TextView title = null;
         private View row = null;
 
@@ -271,9 +403,7 @@ public class MainActivity extends AppCompatActivity {
     //Adapter pour le projet
     class SpinAdapter extends ArrayAdapter<Projet> {
 
-        // Your sent context
         private Context context;
-        // Your custom values for the spinner (User)
         private ArrayList<Projet> values;
 
         public SpinAdapter(Context context, int textViewResourceId, ArrayList<Projet> values) {
@@ -282,36 +412,18 @@ public class MainActivity extends AppCompatActivity {
             this.values = values;
         }
 
-        public int getCount() {
-            return values.size();
-        }
-
-        public Projet getItem(int position) {
-            return values.get(position);
-        }
-
-        public long getItemId(int position) {
-            return position;
-        }
-
-
-        // And the "magic" goes here
-        // This is for the "passive" state of the spinner
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            // I created a dynamic TextView here, but you can reference your own  custom layout for each spinner item
+            //Création d'un TextView dynamique pour la valeur du spinner
             TextView label = new TextView(context);
             label.setTextColor(Color.WHITE);
-            // Then you can get the current item using the values array (Users array) and the current position
-            // You can NOW reference each method you has created in your bean object (User class)
             label.setText(values.get(position).getNom());
 
             // And finally return your dynamic (or custom) view for each spinner item
             return label;
         }
 
-        // And here is when the "chooser" is popped up
-        // Normally is the same view, but you can customize it if you want
+        //Gère la vue du menu déroulant lorsqu'il est déroulé
         @Override
         public View getDropDownView(int position, View convertView,
                                     ViewGroup parent) {
@@ -322,6 +434,7 @@ public class MainActivity extends AppCompatActivity {
             return label;
         }
     }
+
 
     public void updateListesTaches(Projet p) {
         ArrayList<Tache> taches = p.getTaches();
